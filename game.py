@@ -1,35 +1,47 @@
 import pygame
+import sys
 from settings import *
 import ctypes
+from components import *
 class ChessGame:
+
     def __init__(self) -> None:
         pygame.init()
         pygame.display.set_caption('Chess')
         set_dpi_awareness()
-
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         print(pygame.display.get_desktop_sizes())
         self.clock = pygame.time.Clock()
+        self.game_state = 'Menu'
+        self.board = ChessBoard(self.screen, self.clock)
 
     def main_loop(self):
         while True:
             
-            self._handle_input()
-            self._game_logic()
+            ip = self._handle_input()
+            self._game_logic(ip)
             self._draw()
-            
+
             self.clock.tick(FPS)
 
     def _handle_input(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                pygame.quit()
                 quit()
-    
-    def _game_logic(self):
-        pass
+            print(event)
+            pos = pygame.mouse.get_pos()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                return (pos, True)
+            else:
+                return (pos, False)
+
+    def _game_logic(self, input: list):
+        self.board.game_logic(input)
 
     def _draw(self):
         self.screen.fill((0, 0, 255))
+        self.board.draw()
         pygame.display.flip()
 
 def set_dpi_awareness():
