@@ -10,37 +10,36 @@ class ChessGame:
         pygame.display.set_caption('Chess')
         set_dpi_awareness()
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
-        print(pygame.display.get_desktop_sizes())
         self.clock = pygame.time.Clock()
         self.game_state = 'Menu'
         self.board = ChessBoard(self.screen, self.clock)
-
+        self.background = pygame.image.load('Sprite/anhbanhscale.jpg')
+        self.background = pygame.transform.smoothscale(self.background, self.screen.get_size())
     def main_loop(self):
         while True:
             
             ip = self._handle_input()
             self._game_logic(ip)
             self._draw()
-
             self.clock.tick(FPS)
 
     def _handle_input(self):
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+            print(event)
+            if event.type == pygame.QUIT or event.type == pygame.WINDOWCLOSE:
                 pygame.quit()
                 quit()
-            print(event)
             pos = pygame.mouse.get_pos()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 return (pos, True)
             else:
                 return (pos, False)
 
-    def _game_logic(self, input: list):
+    def _game_logic(self, input: tuple):
         self.board.game_logic(input)
 
     def _draw(self):
-        self.screen.fill((0, 0, 255))
+        self.screen.blit(self.background, self.screen.get_rect())
         self.board.draw()
         pygame.display.flip()
 
