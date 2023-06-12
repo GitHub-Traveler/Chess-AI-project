@@ -1,6 +1,15 @@
 import pygame
 from settings import *
 
+def is_mated(black_pieces: list, white_pieces: list, black_pos: list, white_pos: list):
+    # This function returns 1 if white is mated, -1 if black is mated, 0 if both are not mated
+    # and 2 if both sides are mated
+    # YOUR CODE HERE
+    pass
+
+def is_winning(black_pieces: list, white_pieces: list, black_pos: list, white_pos: list):
+    # This function returns 1 if white wins (black checkmated), -1 if black wins (white checkmated)
+    # YOUR CODE HERE
 class ChessBoard:
     def __init__(self, screen: pygame.Surface, clock) -> None:
         self.screen = screen
@@ -432,7 +441,7 @@ class ChessBoard:
         for offset in offsets:
             i, j = input[0] + offset[0], input[1] + offset[1]
             if i >= 0 and i < 9 and j >= 0 and j < 9 and ((i,j) not in self.filled or (i,j) in self.black_pos):
-                moves.append(( i, j))
+                moves.append((i, j))
         return moves
     def black_king_moves(self, input: tuple):
 
