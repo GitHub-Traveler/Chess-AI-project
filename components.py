@@ -395,7 +395,7 @@ class ChessBoard:
         for offset in offsets:
             i, j = input[0] + offset[0], input[1] + offset[1]
 
-            if i >= 0 and i < 8 and j >= 0 and j < 8 and ((i,j) not in self.filled or (i,j) in self.black_pos):
+            if i >= 0 and i < 9 and j >= 0 and j < 9 and ((i,j) not in self.filled or (i,j) in self.black_pos):
                 moves.append((i, j))
 
         return moves
@@ -407,7 +407,7 @@ class ChessBoard:
         for offset in offsets:
             i, j = input[0] + offset[0], input[1] + offset[1]
 
-            if i >= 0 and i < 8 and j >= 0 and j < 8 and ((i,j) not in self.filled or (i,j) in self.white_pos):
+            if i >= 0 and i < 9 and j >= 0 and j < 9 and ((i,j) not in self.filled or (i,j) in self.white_pos):
                 moves.append((i, j))
 
         return moves
@@ -431,7 +431,7 @@ class ChessBoard:
         offsets = [(-1, -1), (-1, 1), (1, -1), (-1, -1), (0, 1), (0, -1), (1, 0), (-1, 0)]
         for offset in offsets:
             i, j = input[0] + offset[0], input[1] + offset[1]
-            if i >= 0 and i < 8 and j >= 0 and j < 8 and ((i,j) not in self.filled or (i,j) in self.black_pos):
+            if i >= 0 and i < 9 and j >= 0 and j < 9 and ((i,j) not in self.filled or (i,j) in self.black_pos):
                 moves.append(( i, j))
         return moves
     def black_king_moves(self, input: tuple):
@@ -441,7 +441,7 @@ class ChessBoard:
         offsets = [(-1, -1), (-1, 1), (1, -1), (-1, -1), (0, 1), (0, -1), (1, 0), (-1, 0)]
         for offset in offsets:
             i, j = input[0] + offset[0], input[1] + offset[1]
-            if i >= 0 and i < 8 and j >= 0 and j < 8 and ((i,j) not in self.filled or (i,j) in self.white_pos):
+            if i >= 0 and i < 9  and j >= 0 and j < 9 and ((i,j) not in self.filled or (i,j) in self.white_pos):
                 moves.append(( i, j))
         return moves
 
