@@ -53,7 +53,7 @@ class ChessBoard:
         else:
             pos = None
             click = False
-        print(input)
+        
         if not click:
             pass
         else:
@@ -214,7 +214,7 @@ class ChessBoard:
         if (input[0]+1,input[1]+1) in self.black_pos:  
             moves.append((input[0]+1,input[1]+1))
         if (input[0]+1,input[1]-1) in self.black_pos:  
-            moves.append((input[0]+1,input[1]+1))
+            moves.append((input[0]+1,input[1]-1))
 
         return moves
     def black_pawn_moves(self, input: tuple):
@@ -238,34 +238,34 @@ class ChessBoard:
 
         # Tính toán các nước đi đường chéo trái lên
         i, j = input[0]-1, input[1]-1
-        while i >= 0 and j >= 0 and (i,j) not in self.filled:
+        while i >= 1 and j >= 1 and (i,j) not in self.filled:
             moves.append((i, j))
             i, j = i-1, j-1
-        if i >= 0 and j >= 0 and (i,j) in self.black_pos:
+        if i >= 1 and j >= 1 and (i,j) in self.black_pos:
             moves.append((i, j))
 
         # Tính toán các nước đi đường chéo phải lên
         i, j = input[0]-1, input[1]+1
-        while i >= 0 and j < 8 and (i,j) not in self.filled:
+        while i >= 1 and j < 9 and (i,j) not in self.filled:
             moves.append((i, j))
             i, j = i-1, j+1
-        if i >= 0 and j < 8 and (i,j) in self.black_pos:
+        if i >= 1 and j < 9 and (i,j) in self.black_pos:
             moves.append((i, j))
 
         # Tính toán các nước đi đường chéo trái xuống
         i, j = input[0]+1, input[1] - 1
-        while i < 8 and j >= 0 and (i,j) not in self.filled:
+        while i < 9 and j >= 1 and (i,j) not in self.filled:
             moves.append((i, j))
             i, j = i+1, j-1
-        if i < 8 and j >= 0 and (i,j) in self.black_pos:
+        if i < 9 and j >= 1 and (i,j) in self.black_pos:
             moves.append((i, j))
 
         # Tính toán các nước đi đường chéo phải xuống
         i, j = input[0]+1, input[1] + 1
-        while i < 8 and j < 8 and (i,j) not in self.filled:
+        while i < 9 and j < 9 and (i,j) not in self.filled:
             moves.append((i, j))
             i, j = i+1, j+1
-        if i < 8 and j < 8 and (i,j) in self.black_pos:
+        if i < 9 and j < 9 and (i,j) in self.black_pos:
             moves.append((i, j))
 
         return moves
@@ -276,54 +276,113 @@ class ChessBoard:
 
         # Tính toán các nước đi đường chéo trái lên
         i, j = input[0]-1, input[1]-1
-        while i >= 0 and j >= 0 and (i,j) not in self.filled:
+        while i >= 1 and j >= 1 and (i,j) not in self.filled:
             moves.append((i, j))
             i, j = i-1, j-1
-        if i >= 0 and j >= 0 and (i,j) in self.white_pos:
+        if i >= 1 and j >= 1 and (i,j) in self.white_pos:
             moves.append((i, j))
 
         # Tính toán các nước đi đường chéo phải lên
         i, j = input[0]-1, input[1]+1
-        while i >= 0 and j < 8 and (i,j) not in self.filled:
+        while i >= 1 and j < 9 and (i,j) not in self.filled:
             moves.append((i, j))
             i, j = i-1, j+1
-        if i >= 0 and j < 8 and (i,j) in self.white_pos:
+        if i >= 1 and j < 9 and (i,j) in self.white_pos:
             moves.append((i, j))
 
         # Tính toán các nước đi đường chéo trái xuống
         i, j = input[0]+1, input[1] - 1
-        while i < 8 and j >= 0 and (i,j) not in self.filled:
+        while i < 9 and j >= 1 and (i,j) not in self.filled:
             moves.append((i, j))
             i, j = i+1, j-1
-        if i < 8 and j >= 0 and (i,j) in self.white_pos:
+        if i < 9 and j >= 1 and (i,j) in self.white_pos:
             moves.append((i, j))
 
         # Tính toán các nước đi đường chéo phải xuống
         i, j = input[0]+1, input[1] + 1
-        while i < 8 and j < 8 and (i,j) not in self.filled:
+        while i < 9 and j < 9 and (i,j) not in self.filled:
             moves.append((i, j))
             i, j = i+1, j+1
-        if i < 8 and j < 8 and (i,j) in self.white_pos:
+        if i < 9 and j < 9 and (i,j) in self.white_pos:
             moves.append((i, j))
 
         return moves
 
     def white_rook_moves(self, input: tuple):
         moves = []
-        for i in range(8):
-            if i != input[0] and ((input[0],i) not in self.filled or (input[0],i) in self.black_pos):
-                moves.append((input[0], i))
-            if i != input[1] and ((i,input[1]) not in self.filled or (i,input[1]) in self.black_pos):
-                moves.append((i,input[1]))
+        i,j = input[0], input[1]
+
+        # Check vertical moves
+        while i < 8 and (i+1,j) not in self.filled:
+            moves.append((i+1, j))
+            i = i + 1
+            print(str(i) + " vertical 1")
+        if i < 8 and (i+1,j) in self.black_pos:
+            moves.append((i+1,j ))
+        i,j = input[0], input[1]
+
+        while i >= 1 and (i-1,j) not in self.filled:
+            moves.append((i-1, j))
+            i = i - 1
+            print(str(i) + " vertical 2")
+        if i >= 1 and (i-1,j) in self.black_pos:
+            moves.append((i-1,j ))
+        i,j = input[0], input[1]
+
+        #Check horizontal moves
+        while j < 8 and (i,j+1) not in self.filled:
+            moves.append((i, j+1))
+            j = j + 1
+            print(str(j) + " horizontal 1")
+        if j < 8 and (i,j+1) in self.black_pos:
+            moves.append((i,j + 1 ))
+
+        i,j = input[0], input[1]
+
+        while j>= 1 and (i,j-1) not in self.filled:
+            moves.append((i, j-1))
+            j = j - 1
+            print(str(j) + " horizontal 2")
+        if j >= 1 and (i,j-1) in self.black_pos:
+            moves.append((i,j-1))
+            
+
         return moves
+
     
     def black_rook_moves(self, input: tuple):
         moves = []
-        for i in range(8):
-            if i != input[0] and ((input[0],i) not in self.filled or (input[0],i) in self.white_pos):
-                moves.append((input[0], i))
-            if i != input[1] and ((i,input[1]) not in self.filled or (i,input[1]) in self.white_pos):
-                moves.append((i,input[1]))
+        i,j = input[0], input[1]
+
+        # Check vertical moves
+        while i < 8 and (i+1,j) not in self.filled:
+            moves.append((i+1, j))
+            i = i + 1
+        if i < 8 and (i+1,j) in self.white_pos:
+            moves.append((i+1,j ))
+        i,j = input[0], input[1]
+
+        while i >= 1 and (i-1,j) not in self.filled:
+            moves.append((i-1, j))
+            i = i - 1
+        if i >= 1 and (i-1,j) in self.white_pos:
+            moves.append((i-1,j ))
+        i,j = input[0], input[1]
+
+        #Check horizontal moves
+        while j < 8 and (i,j+1) not in self.filled:
+            moves.append((i, j+1))
+            j = j + 1
+        if j < 8 and (i,j+1) in self.white_pos:
+            moves.append((i,j + 1 ))
+
+        i,j = input[0], input[1]
+
+        while j>= 1 and (i,j-1) not in self.filled:
+            moves.append((i, j-1))
+            j = j - 1
+        if j >= 1 and (i,j-1) in self.white_pos:
+            moves.append((i,j-1 ))
 
         return moves
 
