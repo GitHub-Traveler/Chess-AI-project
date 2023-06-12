@@ -6,6 +6,7 @@ class ChessBoard:
         self.screen = screen
         self.clock = clock
         self._initiate_game()
+        self.agent = Agent(self)
 
     def _initiate_game(self):
         # Initiate all variables to record important information in the game
@@ -171,14 +172,18 @@ class ChessBoard:
                 return self.pawn_moves(position)
 
     def pawn_moves(self, input: tuple):
+        pass
     def king_moves(self, input: tuple):
         pass
     def queen_moves(self, input: tuple):
+        pass
     def bishop_moves(self, input: tuple):
+        pass
     def rook_moves(self, input: tuple):
+        pass
     def knight_moves(self, input: tuple):
         pass
 
 class Agent:
-    def __init__(self) -> None:
-        pass
+    def __init__(self, board: ChessBoard) -> None:
+        self.board = board
