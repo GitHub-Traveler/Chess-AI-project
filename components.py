@@ -1,6 +1,6 @@
 import pygame
 from settings import *
-import chess
+
 class ChessBoard:
     def __init__(self, screen: pygame.Surface, clock) -> None:
         self.screen = screen
@@ -38,6 +38,7 @@ class ChessBoard:
                           ,(8, 1), (8, 2), (8, 3), (8, 4), (8, 5), (8, 6), (8, 7), (8, 8)]
         self.white_pos = [(2, 1), (2, 2), (2, 3), (2, 4), (2, 5), (2, 6), (2, 7), (2, 8)
                           ,(1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (1, 8)]
+        self.filled = self.black_pos.extend(self.white_pos)
         self.current_chosen_piece_position = None
         self.current_chosen_piece = None
         self.current_available_moves = None
@@ -145,44 +146,215 @@ class ChessBoard:
         if input in self.white_pos:
             current_piece = self.white_pieces[self.white_pos.index(input)]
             if current_piece == 'wK':
-                return self.king_moves(position)
+                return self.white_king_moves(position)
             if current_piece == 'wQ':
-                return self.queen_moves(position)
+                return self.white_queen_moves(position)
             if current_piece == 'wKn':
-                return self.knight_moves(position)
+                return self.white_knight_moves(position)
             if current_piece == 'wB':
-                return self.bishop_moves(position)
+                return self.white_bishop_moves(position)
             if current_piece == 'wR':
-                return self.rook_moves(position)
+                return self.white_rook_moves(position)
             if current_piece == 'wP':
-                return self.pawn_moves(position)
+                return self.white_pawn_moves(position)
         if input in self.black_pos:
             current_piece = self.black_pieces[self.black_pos.index(input)]
-            if current_piece == 'wK':
-                return self.king_moves(position)
-            if current_piece == 'wQ':
-                return self.queen_moves(position)
-            if current_piece == 'wKn':
-                return self.knight_moves(position)
-            if current_piece == 'wB':
-                return self.bishop_moves(position)
-            if current_piece == 'wR':
-                return self.rook_moves(position)
-            if current_piece == 'wP':
-                return self.pawn_moves(position)
+            if current_piece == 'bK':
+                return self.black_king_moves(position)
+            if current_piece == 'bQ':
+                return self.black_queen_moves(position)
+            if current_piece == 'bKn':
+                return self.black_knight_moves(position)
+            if current_piece == 'bB':
+                return self.black_bishop_moves(position)
+            if current_piece == 'bR':
+                return self.black_rook_moves(position)
+            if current_piece == 'bP':
+                return self.black_pawn_moves(position)
 
-    def pawn_moves(self, input: tuple):
-        pass
-    def king_moves(self, input: tuple):
-        pass
-    def queen_moves(self, input: tuple):
-        pass
-    def bishop_moves(self, input: tuple):
-        pass
-    def rook_moves(self, input: tuple):
-        pass
-    def knight_moves(self, input: tuple):
-        pass
+    def white_pawn_moves(self, input: tuple):
+        moves = []
+        if input[0] < 7 and (input[0]+1,input[1]) not in self.filled:
+            moves.append((input[0]+1,input[1]))
+            #If the pawn is in the first position
+            if input[0] == 2 and (input[0]+2,input[1]) not in self.filled:
+                moves.append((input[0]+2,input[1]))
+
+        #check for enemies
+        if (input[0]+1,input[1]+1) in self.black_pos:  
+            moves.append((input[0]+1,input[1]+1))
+        if (input[0]+1,input[1]-1) in self.black_pos:  
+            moves.append((input[0]+1,input[1]+1))
+
+        return moves
+    def black_pawn_moves(self, input: tuple):
+        moves = []
+        if input[0] >= 0 and (input[0]-1,input[1]) not in self.filled:
+            moves.append((input[0]-1,input[1]))
+            #If the pawn is in the first position
+            if input[0] == 7 and (input[0]-2,input[1]) not in self.filled:
+                moves.append((input[0]-2,input[1]))
+
+        #check for enemies
+        if (input[0]-1,input[1]+1) in self.white_pos:  
+            moves.append((input[0]-1,input[1]+1))
+        if (input[0]-1,input[1]-1) in self.white_pos:  
+            moves.append((input[0]-1,input[1]-1))
+
+        return moves
+    
+    def white_bishop_moves(self, input: tuple):
+        moves = []
+
+        # Tính toán các nước đi đường chéo trái lên
+        i, j = input[0]-1, input[1]-1
+        while i >= 0 and j >= 0 and (i,j) not in self.filled:
+            moves.append((i, j))
+            i, j = i-1, j-1
+        if i >= 0 and j >= 0 and (i,j) in self.black_pos:
+            moves.append((i, j))
+
+        # Tính toán các nước đi đường chéo phải lên
+        i, j = input[0]-1, input[1]+1
+        while i >= 0 and j < 8 and (i,j) not in self.filled:
+            moves.append((i, j))
+            i, j = i-1, j+1
+        if i >= 0 and j < 8 and (i,j) in self.black_pos:
+            moves.append((i, j))
+
+        # Tính toán các nước đi đường chéo trái xuống
+        i, j = input[0]+1, input[1] - 1
+        while i < 8 and j >= 0 and (i,j) not in self.filled:
+            moves.append((i, j))
+            i, j = i+1, j-1
+        if i < 8 and j >= 0 and (i,j) in self.black_pos:
+            moves.append((i, j))
+
+        # Tính toán các nước đi đường chéo phải xuống
+        i, j = input[0]+1, input[1] + 1
+        while i < 8 and j < 8 and (i,j) not in self.filled:
+            moves.append((i, j))
+            i, j = i+1, j+1
+        if i < 8 and j < 8 and (i,j) in self.black_pos:
+            moves.append((i, j))
+
+        return moves
+    
+
+    def black_bishop_moves(self, input: tuple):
+        moves = []
+
+        # Tính toán các nước đi đường chéo trái lên
+        i, j = input[0]-1, input[1]-1
+        while i >= 0 and j >= 0 and (i,j) not in self.filled:
+            moves.append((i, j))
+            i, j = i-1, j-1
+        if i >= 0 and j >= 0 and (i,j) in self.white_pos:
+            moves.append((i, j))
+
+        # Tính toán các nước đi đường chéo phải lên
+        i, j = input[0]-1, input[1]+1
+        while i >= 0 and j < 8 and (i,j) not in self.filled:
+            moves.append((i, j))
+            i, j = i-1, j+1
+        if i >= 0 and j < 8 and (i,j) in self.white_pos:
+            moves.append((i, j))
+
+        # Tính toán các nước đi đường chéo trái xuống
+        i, j = input[0]+1, input[1] - 1
+        while i < 8 and j >= 0 and (i,j) not in self.filled:
+            moves.append((i, j))
+            i, j = i+1, j-1
+        if i < 8 and j >= 0 and (i,j) in self.white_pos:
+            moves.append((i, j))
+
+        # Tính toán các nước đi đường chéo phải xuống
+        i, j = input[0]+1, input[1] + 1
+        while i < 8 and j < 8 and (i,j) not in self.filled:
+            moves.append((i, j))
+            i, j = i+1, j+1
+        if i < 8 and j < 8 and (i,j) in self.white_pos:
+            moves.append((i, j))
+
+        return moves
+
+    def white_rook_moves(self, input: tuple):
+        moves = []
+        for i in range(8):
+            if i != input[0] and ((input[0],i) not in self.filled or (input[0],i) in self.black_pos):
+                moves.append((input[0], i))
+            if i != input[1] and ((i,input[1]) not in self.filled or (i,input[1]) in self.black_pos):
+                moves.append((i,input[1]))
+        return moves
+    
+    def black_rook_moves(self, input: tuple):
+        moves = []
+        for i in range(8):
+            if i != input[0] and ((input[0],i) not in self.filled or (input[0],i) in self.white_pos):
+                moves.append((input[0], i))
+            if i != input[1] and ((i,input[1]) not in self.filled or (i,input[1]) in self.white_pos):
+                moves.append((i,input[1]))
+
+        return moves
+
+
+    def white_knight_moves(self, input: tuple):
+        moves = []
+
+        # Possible moves of knight
+        offsets = [(-2, -1), (-1, -2), (1, -2), (2, -1), (-2, 1), (-1, 2), (1, 2), (2, 1)]
+        for offset in offsets:
+            i, j = input[0] + offset[0], input[1] + offset[1]
+
+            if i >= 0 and i < 8 and j >= 0 and j < 8 and ((i,j) not in self.filled or (i,j) in self.black_pos):
+                moves.append((i, j))
+
+        return moves
+    def black_knight_moves(self, input: tuple):
+        moves = []
+
+        # Possible moves of knight
+        offsets = [(-2, -1), (-1, -2), (1, -2), (2, -1), (-2, 1), (-1, 2), (1, 2), (2, 1)]
+        for offset in offsets:
+            i, j = input[0] + offset[0], input[1] + offset[1]
+
+            if i >= 0 and i < 8 and j >= 0 and j < 8 and ((i,j) not in self.filled or (i,j) in self.white_pos):
+                moves.append((i, j))
+
+        return moves
+    
+    def white_queen_moves(self, input: tuple):
+        moves = []
+        moves.extend(self.white_bishop_moves(input))
+        moves.extend(self.white_rook_moves(input))
+        
+        return moves
+    def black_queen_moves(self, input: tuple):
+        moves = []
+        moves.extend(self.black_bishop_moves(input))
+        moves.extend(self.black_rook_moves(input))
+        
+        return moves
+    def white_king_moves(self, input: tuple):
+
+        moves = []
+        # Check all 8 squares around the king
+        offsets = [(-1, -1), (-1, 1), (1, -1), (-1, -1), (0, 1), (0, -1), (1, 0), (-1, 0)]
+        for offset in offsets:
+            i, j = input[0] + offset[0], input[1] + offset[1]
+            if i >= 0 and i < 8 and j >= 0 and j < 8 and ((i,j) not in self.filled or (i,j) in self.black_pos):
+                moves.append(( i, j))
+        return moves
+    def black_king_moves(self, input: tuple):
+
+        moves = []
+        # Check all 8 squares around the king
+        offsets = [(-1, -1), (-1, 1), (1, -1), (-1, -1), (0, 1), (0, -1), (1, 0), (-1, 0)]
+        for offset in offsets:
+            i, j = input[0] + offset[0], input[1] + offset[1]
+            if i >= 0 and i < 8 and j >= 0 and j < 8 and ((i,j) not in self.filled or (i,j) in self.white_pos):
+                moves.append(( i, j))
+        return moves
 
 class Agent:
     def __init__(self, board: ChessBoard) -> None:
