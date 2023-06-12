@@ -6,13 +6,14 @@ class ChessBoard:
         self.screen = screen
         self.clock = clock
         self._initiate_game()
+        self.agent = Agent(self)
 
     def _initiate_game(self):
         # Initiate all variables to record important information in the game
         self.current_turn_white = True  # Current turn is white or black
         self.white_moves = []   # History of white moves
         self.black_moves = []   # History of black moves
-        self.piece_image = {}
+        self.piece_image = {}   # Dictonary of chess pieces images.
         self.board = pygame.Surface((CHESS_PIECE_AREA * 8, CHESS_PIECE_AREA * 8))
         self.board.fill((255, 255, 255))
         self.piece_image['bP'] = pygame.image.load('Sprite/bP.png')
@@ -40,6 +41,7 @@ class ChessBoard:
         self.filled = self.black_pos.extend(self.white_pos)
         self.current_chosen_piece_position = None
         self.current_chosen_piece = None
+        self.current_available_moves = None
         
     def game_logic(self, input: tuple):
         # Check if input is valid or not
@@ -59,11 +61,38 @@ class ChessBoard:
                 return
             if self.current_turn_white:
                 chosen_location = (9 - chosen_location[0], 9 - chosen_location[1])
-                if chosen_location != self.current_chosen_piece_position:
-                    if chosen_location in self.white_pos:
-                        self.current_chosen_piece_position = chosen_location
-                        self.current_chosen_piece = self.white_pieces[self.white_pos.index(chosen_location)]
-
+                if chosen_location in self.white_pos:
+                    self.current_chosen_piece_position = chosen_location
+                    self.current_chosen_piece = self.white_pieces[self.white_pos.index(chosen_location)]
+                    self.current_available_moves = self.available_moves(chosen_location)
+                elif chosen_location in self.current_available_moves:
+                    self.white_pos[self.white_pos.index(self.current_chosen_piece_position)] = chosen_location
+                    if chosen_location in self.black_pos:
+                        remove_index = self.black_pos.index(chosen_location)
+                        del self.black_pos[remove_index]
+                        del self.black_pieces[remove_index]
+                    self.current_turn_white = not self.current_turn_white
+                else:
+                    self.current_chosen_piece_position = None
+                    self.current_chosen_piece = None
+                    self.current_available_moves = None
+            else:
+                chosen_location = (chosen_location[0], chosen_location[1])
+                if chosen_location in self.black_pos:
+                    self.current_chosen_piece_position = chosen_location
+                    self.current_chosen_piece = self.black_pieces[self.black_pos.index(chosen_location)]
+                    self.current_available_moves = self.available_moves(chosen_location)
+                elif chosen_location in self.current_available_moves:
+                    self.black_pos[self.black_pos.index(self.current_chosen_piece_position)] = chosen_location
+                    if chosen_location in self.black_pos:
+                        remove_index = self.black_pos.index(chosen_location)
+                        del self.white_pos[remove_index]
+                        del self.white_pieces[remove_index]
+                    self.current_turn_white = not self.current_turn_white
+                else:
+                    self.current_chosen_piece_position = None
+                    self.current_chosen_piece = None
+                    self.current_available_moves = None
     def draw(self):
         # Draw the empty chess board surface
         self.screen.blit(self.board, BASE_COORDINATE_BOARD)
@@ -326,5 +355,7 @@ class ChessBoard:
             if i >= 0 and i < 8 and j >= 0 and j < 8 and ((i,j) not in self.filled or (i,j) in self.white_pos):
                 moves.append(( i, j))
         return moves
-        
 
+class Agent:
+    def __init__(self, board: ChessBoard) -> None:
+        self.board = board
