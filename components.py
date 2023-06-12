@@ -28,6 +28,7 @@ class ChessBoard:
         self.piece_image['wR'] = pygame.image.load('Sprite/wR.png')
         self.piece_image['bB'] = pygame.image.load('Sprite/bB.png')
         self.piece_image['wB'] = pygame.image.load('Sprite/wB.png')
+        self.piece_image['possible_moves_mark'] = pygame.image.load('Sprite/possible_moves.png')
         for key, image in self.piece_image.items():
             self.piece_image[key] = pygame.transform.smoothscale(image, (CHESS_PIECE_AREA, CHESS_PIECE_AREA))
         self.black_pieces = ['bP', 'bP', 'bP', 'bP', 'bP', 'bP', 'bP', 'bP', 'bR', 'bKn', 'bB'
@@ -38,12 +39,13 @@ class ChessBoard:
                           ,(8, 1), (8, 2), (8, 3), (8, 4), (8, 5), (8, 6), (8, 7), (8, 8)]
         self.white_pos = [(2, 1), (2, 2), (2, 3), (2, 4), (2, 5), (2, 6), (2, 7), (2, 8)
                           ,(1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (1, 8)]
-        self.filled = self.black_pos.extend(self.white_pos)
+        self.filled = self.black_pos + self.white_pos
         self.current_chosen_piece_position = None
         self.current_chosen_piece = None
-        self.current_available_moves = None
+        self.current_available_moves = []
         
     def game_logic(self, input: tuple):
+        print(self.current_available_moves)
         # Check if input is valid or not
         if input:
             pos = input[0]
@@ -51,6 +53,7 @@ class ChessBoard:
         else:
             pos = None
             click = False
+        print(input)
         if not click:
             pass
         else:
@@ -71,11 +74,19 @@ class ChessBoard:
                         remove_index = self.black_pos.index(chosen_location)
                         del self.black_pos[remove_index]
                         del self.black_pieces[remove_index]
+                        self.filled.remove(chosen_location)
+                        self.filled[self.filled.index(self.current_chosen_piece_position)] = chosen_location
+                    else:
+                        self.filled[self.filled.index(self.current_chosen_piece_position)] = chosen_location
                     self.current_turn_white = not self.current_turn_white
+                    # Next turn and reset the state
+                    self.current_chosen_piece_position = None
+                    self.current_chosen_piece = None
+                    self.current_available_moves = []
                 else:
                     self.current_chosen_piece_position = None
                     self.current_chosen_piece = None
-                    self.current_available_moves = None
+                    self.current_available_moves = []
             else:
                 chosen_location = (chosen_location[0], chosen_location[1])
                 if chosen_location in self.black_pos:
@@ -84,19 +95,28 @@ class ChessBoard:
                     self.current_available_moves = self.available_moves(chosen_location)
                 elif chosen_location in self.current_available_moves:
                     self.black_pos[self.black_pos.index(self.current_chosen_piece_position)] = chosen_location
-                    if chosen_location in self.black_pos:
-                        remove_index = self.black_pos.index(chosen_location)
+                    if chosen_location in self.white_pos:
+                        remove_index = self.white_pos.index(chosen_location)
                         del self.white_pos[remove_index]
                         del self.white_pieces[remove_index]
+                        self.filled.remove(chosen_location)
+                        self.filled[self.filled.index(self.current_chosen_piece_position)] = chosen_location
+                    else:
+                        self.filled[self.filled.index(self.current_chosen_piece_position)] = chosen_location
                     self.current_turn_white = not self.current_turn_white
+                    # Next turn and reset the state
+                    self.current_chosen_piece_position = None
+                    self.current_chosen_piece = None
+                    self.current_available_moves = []
                 else:
                     self.current_chosen_piece_position = None
                     self.current_chosen_piece = None
-                    self.current_available_moves = None
+                    self.current_available_moves = []
     def draw(self):
         # Draw the empty chess board surface
         self.screen.blit(self.board, BASE_COORDINATE_BOARD)
         # Draw the chess board when it is white turn
+        self.board.fill((255, 255, 255))
         if self.current_turn_white:
             for x in range(1, 8, 2):
                 for y in range(0, 8, 2):
@@ -117,6 +137,11 @@ class ChessBoard:
                 white_piece_position = (9 - self.white_pos[i][0], self.white_pos[i][1])
                 coordinate =  (CHESS_PIECE_AREA * (white_piece_position[1] - 1), CHESS_PIECE_AREA * (white_piece_position[0] - 1))
                 self.board.blit(self.piece_image[white_piece], coordinate)
+
+            for i in self.current_available_moves:
+                mark_position = (9 - i[0], i[1])
+                coordinate = (CHESS_PIECE_AREA * (mark_position[1] - 1), CHESS_PIECE_AREA * (mark_position[0] - 1))
+                self.board.blit(self.piece_image['possible_moves_mark'], coordinate)
         else:
             # Draw the chess board when it is black turn
             for x in range(0, 8, 2):
@@ -139,6 +164,11 @@ class ChessBoard:
                 white_piece_position = (self.white_pos[i][0], 9 - self.white_pos[i][1])
                 coordinate = (CHESS_PIECE_AREA * (white_piece_position[1] - 1), CHESS_PIECE_AREA * (white_piece_position[0] - 1))
                 self.board.blit(self.piece_image[white_piece], coordinate)
+            
+            for i in self.current_available_moves:
+                mark_position = (i[0],9 - i[1])
+                coordinate = (CHESS_PIECE_AREA * (mark_position[1] - 1), CHESS_PIECE_AREA * (mark_position[0] - 1))
+                self.board.blit(self.piece_image['possible_moves_mark'], coordinate)
         return
 
     def available_moves(self, input: tuple):
