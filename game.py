@@ -25,7 +25,6 @@ class ChessGame:
 
     def _handle_input(self):
         for event in pygame.event.get():
-            print(event)
             if event.type == pygame.QUIT or event.type == pygame.WINDOWCLOSE:
                 pygame.quit()
                 quit()
@@ -39,6 +38,7 @@ class ChessGame:
         self.board.game_logic(input)
 
     def _draw(self):
+        self.screen.fill((0, 0, 0))
         self.screen.blit(self.background, self.screen.get_rect())
         self.board.draw()
         pygame.display.flip()
