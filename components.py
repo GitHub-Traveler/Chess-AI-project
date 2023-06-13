@@ -202,7 +202,6 @@ class ChessBoard:
             self.update_king_location(piece, move)
             # 3) For that move, generate all moves for all opponents
             for opponent in self.black_pos:
-                print("INSIDE THE LOOP OF REMOVAL")
                 print("I am generate moves of " + self.black_pieces[self.black_pos.index(opponent)])
                 moves_for_opponents = self.available_moves(opponent)
                 print("Here is the list of that opponent")
@@ -473,10 +472,10 @@ class ChessBoard:
             moves.append((i+1,j ))
         i,j = input[0], input[1]
 
-        while i >= 1 and (i-1,j) not in self.filled:
+        while i > 1 and (i-1,j) not in self.filled:
             moves.append((i-1, j))
             i = i - 1
-        if i >= 1 and (i-1,j) in self.white_pos:
+        if i > 1 and (i-1,j) in self.white_pos:
             moves.append((i-1,j ))
         i,j = input[0], input[1]
 
@@ -489,10 +488,10 @@ class ChessBoard:
 
         i,j = input[0], input[1]
 
-        while j>= 1 and (i,j-1) not in self.filled:
+        while j> 1 and (i,j-1) not in self.filled:
             moves.append((i, j-1))
             j = j - 1
-        if j >= 1 and (i,j-1) in self.white_pos:
+        if j > 1 and (i,j-1) in self.white_pos:
             moves.append((i,j-1 ))
 
         return moves
