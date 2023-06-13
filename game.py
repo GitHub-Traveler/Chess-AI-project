@@ -14,6 +14,7 @@ class ChessGame:
         self.game_state = 'Menu'
         self.board = ChessBoard(self.screen, self.clock)
         self.background = pygame.image.load('Sprite/anhbanhscale.jpg')
+        
         self.background = pygame.transform.smoothscale(self.background, self.screen.get_size())
     def main_loop(self):
         while True:

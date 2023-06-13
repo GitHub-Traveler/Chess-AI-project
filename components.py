@@ -2,14 +2,23 @@ import pygame
 from settings import *
 
 def is_mated(black_pieces: list, white_pieces: list, black_pos: list, white_pos: list):
-    # This function returns 1 if white is mated, -1 if black is mated, 0 if both are not mated
+    # This function returns 1 if black is mated, -1 if white is mated, 0 if both are not mated
     # and 2 if both sides are mated
     # YOUR CODE HERE
     pass
 
 def is_winning(black_pieces: list, white_pieces: list, black_pos: list, white_pos: list):
     # This function returns 1 if white wins (black checkmated), -1 if black wins (white checkmated)
+    # 0 if both sides are not checkmated (and 2 if both sides are checkmated)
     # YOUR CODE HERE
+    pass
+
+def is_stalemate(black_pieces: list, white_pieces: list, black_pos: list, white_pos: list):
+    # This function returns 1 if black is in a stalemate, -1 if white is in stalemate 
+    # 0 if both sides are not in stalemate (and 2 if both sides are stalemate)
+    # YOUR CODE HERE
+    pass
+
 class ChessBoard:
     def __init__(self, screen: pygame.Surface, clock) -> None:
         self.screen = screen
@@ -40,6 +49,7 @@ class ChessBoard:
         self.piece_image['possible_moves_mark'] = pygame.image.load('Sprite/possible_moves.png')
         for key, image in self.piece_image.items():
             self.piece_image[key] = pygame.transform.smoothscale(image, (CHESS_PIECE_AREA, CHESS_PIECE_AREA))
+        
         self.black_pieces = ['bP', 'bP', 'bP', 'bP', 'bP', 'bP', 'bP', 'bP', 'bR', 'bKn', 'bB'
                             , 'bK', 'bQ', 'bB', 'bKn', 'bR']
         self.white_pieces = ['wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wR', 'wKn', 'wB'
@@ -54,7 +64,6 @@ class ChessBoard:
         self.current_available_moves = []
         
     def game_logic(self, input: tuple):
-        print(self.current_available_moves)
         # Check if input is valid or not
         if input:
             pos = input[0]
@@ -96,6 +105,7 @@ class ChessBoard:
                     self.current_chosen_piece_position = None
                     self.current_chosen_piece = None
                     self.current_available_moves = []
+                
             else:
                 chosen_location = (chosen_location[0], chosen_location[1])
                 if chosen_location in self.black_pos:
@@ -457,3 +467,10 @@ class ChessBoard:
 class Agent:
     def __init__(self, board: ChessBoard) -> None:
         self.board = board
+
+    def find_best_move(self) -> tuple[tuple, tuple]:
+        # This function returns the best move for the agent turn as two tuples
+        # The first tuple is the initial location of the chess piece
+        # The second tuple is the final location of that chess piece
+        # YOUR CODE HERE
+        pass
