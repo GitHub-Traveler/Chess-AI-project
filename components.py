@@ -32,9 +32,9 @@ class ChessBoard:
         for key, image in self.piece_image.items():
             self.piece_image[key] = pygame.transform.smoothscale(image, (CHESS_PIECE_AREA, CHESS_PIECE_AREA))
         self.black_pieces = ['bP', 'bP', 'bP', 'bP', 'bP', 'bP', 'bP', 'bP', 'bR', 'bKn', 'bB'
-                            , 'bK', 'bQ', 'bB', 'bKn', 'bR']
+                            ,  'bQ','bK', 'bB', 'bKn', 'bR']
         self.white_pieces = ['wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wR', 'wKn', 'wB'
-                            , 'wK', 'wQ', 'wB', 'wKn', 'wR']
+                            , 'wQ','wK' , 'wB', 'wKn', 'wR']
         self.black_pos = [(7, 1), (7, 2), (7, 3), (7, 4), (7, 5), (7, 6), (7, 7), (7, 8)
                           ,(8, 1), (8, 2), (8, 3), (8, 4), (8, 5), (8, 6), (8, 7), (8, 8)]
         self.white_pos = [(2, 1), (2, 2), (2, 3), (2, 4), (2, 5), (2, 6), (2, 7), (2, 8)
@@ -43,7 +43,9 @@ class ChessBoard:
         self.current_chosen_piece_position = None
         self.current_chosen_piece = None
         self.current_available_moves = []
-        
+        self.white_king_location = (1, 5)
+        self.black_king_location = (8, 5)
+
     def game_logic(self, input: tuple):
         print(self.current_available_moves)
         # Check if input is valid or not
@@ -67,9 +69,12 @@ class ChessBoard:
                 if chosen_location in self.white_pos:
                     self.current_chosen_piece_position = chosen_location
                     self.current_chosen_piece = self.white_pieces[self.white_pos.index(chosen_location)]
-                    self.current_available_moves = self.available_moves(chosen_location)
+                    self.current_available_moves = self.get_valid_moves(chosen_location)
                 elif chosen_location in self.current_available_moves:
                     self.white_pos[self.white_pos.index(self.current_chosen_piece_position)] = chosen_location
+                    #If the chosen piece is the king, update its location
+                    self.update_king_location(self.current_chosen_piece, chosen_location)
+
                     if chosen_location in self.black_pos:
                         remove_index = self.black_pos.index(chosen_location)
                         del self.black_pos[remove_index]
@@ -92,9 +97,11 @@ class ChessBoard:
                 if chosen_location in self.black_pos:
                     self.current_chosen_piece_position = chosen_location
                     self.current_chosen_piece = self.black_pieces[self.black_pos.index(chosen_location)]
-                    self.current_available_moves = self.available_moves(chosen_location)
+                    self.current_available_moves = self.get_valid_moves(chosen_location)
                 elif chosen_location in self.current_available_moves:
                     self.black_pos[self.black_pos.index(self.current_chosen_piece_position)] = chosen_location
+                    
+
                     if chosen_location in self.white_pos:
                         remove_index = self.white_pos.index(chosen_location)
                         del self.white_pos[remove_index]
@@ -170,6 +177,104 @@ class ChessBoard:
                 coordinate = (CHESS_PIECE_AREA * (mark_position[1] - 1), CHESS_PIECE_AREA * (mark_position[0] - 1))
                 self.board.blit(self.piece_image['possible_moves_mark'], coordinate)
         return
+    
+    def delete_invalid_moves(self, all_moves: list, current_pos ):
+
+        piece =  self.white_pieces[self.white_pos.index(current_pos)]
+        # 1) Generates all moves for the current pieces
+        # 2) For each move, make that move
+        print("WE ARE CONSIDERING " +  piece )
+        print("THE AVAI MOVES ARE")
+        print(all_moves)
+
+        for i in range(len(all_moves)-1,-1,-1):
+            move = all_moves[i]
+            self.white_pos[self.white_pos.index(current_pos)] = move
+
+            print("This is the move ", end=" ")
+            print(move)
+            print("THE ALL MOVE LIST LEFTT SOMETHING ")
+            print(all_moves)
+            
+            
+            
+            # If it is the king, update the location
+            self.update_king_location(piece, move)
+            # 3) For that move, generate all moves for all opponents
+            for opponent in self.black_pos:
+                print("INSIDE THE LOOP OF REMOVAL")
+                print("I am generate moves of " + self.black_pieces[self.black_pos.index(opponent)])
+                moves_for_opponents = self.available_moves(opponent)
+                print("Here is the list of that opponent")
+                print(moves_for_opponents)
+                print("WHITE KING LOCATION ", end = " ")
+                print(self.white_king_location)
+                print("KING IS IN ATTACKKKKK ????", end= " ")
+                print( self.white_king_location in moves_for_opponents)
+                # 4) Remove the initial moves if it can lead to some threads to the king
+
+                if self.white_king_location in moves_for_opponents:
+                    print("Successfully remove")
+                    all_moves.remove(move)
+            self.white_pos[self.white_pos.index(move)] = current_pos
+
+
+        return all_moves
+    
+    def update_king_location(self, piece, input: tuple):
+        if piece == "wK":
+            self.white_king_location = input
+        elif piece == "bK":
+            self.black_king_location = input
+
+    def get_valid_moves(self, input: tuple):
+        position = input
+        if input in self.white_pos:
+            current_piece = self.white_pieces[self.white_pos.index(input)]
+            if current_piece == 'wK':
+                raw_list = self.white_king_moves(position)
+                final_set = self.delete_invalid_moves(raw_list,position)
+                return final_set
+            if current_piece == 'wQ':
+                raw_list = self.white_queen_moves(position)
+                final_set = self.delete_invalid_moves(raw_list,position)
+                return final_set
+                
+            if current_piece == 'wKn':
+                raw_list = self.white_knight_moves(position)
+                final_set = self.delete_invalid_moves(raw_list,position)
+                return final_set
+            
+            if current_piece == 'wB':
+                raw_list = self.white_bishop_moves(position)
+                final_set = self.delete_invalid_moves(raw_list,position)
+                return final_set
+            
+            if current_piece == 'wR':
+                raw_list = self.white_rook_moves(position)
+                final_set = self.delete_invalid_moves(raw_list,position)
+                return final_set
+            
+            if current_piece == 'wP':
+                raw_list = self.white_pawn_moves(position)
+                final_set = self.delete_invalid_moves(raw_list,position)
+                return final_set
+            
+        if input in self.black_pos:
+            current_piece = self.black_pieces[self.black_pos.index(input)]
+            if current_piece == 'bK':
+                return self.black_king_moves(position)
+            if current_piece == 'bQ':
+                return self.black_queen_moves(position)
+            if current_piece == 'bKn':
+                return self.black_knight_moves(position)
+            if current_piece == 'bB':
+                return self.black_bishop_moves(position)
+            if current_piece == 'bR':
+                return self.black_rook_moves(position)
+            if current_piece == 'bP':
+                return self.black_pawn_moves(position)
+
 
     def available_moves(self, input: tuple):
         position = input
@@ -215,6 +320,8 @@ class ChessBoard:
             moves.append((input[0]+1,input[1]+1))
         if (input[0]+1,input[1]-1) in self.black_pos:  
             moves.append((input[0]+1,input[1]-1))
+        
+        
 
         return moves
     def black_pawn_moves(self, input: tuple):
@@ -230,6 +337,8 @@ class ChessBoard:
             moves.append((input[0]-1,input[1]+1))
         if (input[0]-1,input[1]-1) in self.white_pos:  
             moves.append((input[0]-1,input[1]-1))
+
+
 
         return moves
     
@@ -306,6 +415,7 @@ class ChessBoard:
         if i < 9 and j < 9 and (i,j) in self.white_pos:
             moves.append((i, j))
 
+
         return moves
 
     def white_rook_moves(self, input: tuple):
@@ -313,11 +423,11 @@ class ChessBoard:
         i,j = input[0], input[1]
 
         # Check vertical moves
-        while i < 8 and (i+1,j) not in self.filled:
+        while i < 9 and (i+1,j) not in self.filled:
             moves.append((i+1, j))
             i = i + 1
             print(str(i) + " vertical 1")
-        if i < 8 and (i+1,j) in self.black_pos:
+        if i < 9 and (i+1,j) in self.black_pos:
             moves.append((i+1,j ))
         i,j = input[0], input[1]
 
@@ -330,11 +440,11 @@ class ChessBoard:
         i,j = input[0], input[1]
 
         #Check horizontal moves
-        while j < 8 and (i,j+1) not in self.filled:
+        while j < 9 and (i,j+1) not in self.filled:
             moves.append((i, j+1))
             j = j + 1
             print(str(j) + " horizontal 1")
-        if j < 8 and (i,j+1) in self.black_pos:
+        if j < 9 and (i,j+1) in self.black_pos:
             moves.append((i,j + 1 ))
 
         i,j = input[0], input[1]
@@ -345,6 +455,7 @@ class ChessBoard:
             print(str(j) + " horizontal 2")
         if j >= 1 and (i,j-1) in self.black_pos:
             moves.append((i,j-1))
+
             
 
         return moves
