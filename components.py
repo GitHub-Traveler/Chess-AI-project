@@ -34,6 +34,8 @@ class ChessBoard:
         self.agent = chessAgent(self.chessboard, BLACK)
         self.current_available_moves = []
         self.current_chosen_chess_piece = None
+
+
     def get_all_moves_onepiece(self, start_location: int) -> list[chess.Move]:
         # Get all moves of a chess piece from a given position.
         list_of_moves = []
@@ -201,7 +203,7 @@ class chessAgent:
 
     def evaluation(self):
         engine = chess.engine.SimpleEngine.popen_uci("stockfish\src\stockfish.exe")
-        result = engine.analyse(self.board, chess.engine.Limit(depth=0))
+        result = engine.analyse(self.board, chess.engine.Limit(depth=))
         print(list(result))
         return result['score']
     

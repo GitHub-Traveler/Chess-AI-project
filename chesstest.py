@@ -8,7 +8,5 @@ def evaluation(board):
     return result['score']
 
 board = chess.Board()
-
-
-print(evaluation(board))
-
+for move in board.legal_moves:
+    print(i)
