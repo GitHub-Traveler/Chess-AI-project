@@ -1,6 +1,7 @@
 import pygame
 from settings import *
 import chess
+import chess.engine
 import math
 
 class ChessBoard:
@@ -197,6 +198,17 @@ class chessAgent:
             beta = min(beta, current_score)
 
         return current_score, current_move
-    
+
     def evaluation(self):
-        return 0
+        engine = chess.engine.SimpleEngine.popen_uci("stockfish\src\stockfish.exe")
+        result = engine.analyse(self.board, chess.engine.Limit(depth=0))
+        print(list(result))
+        return result['score']
+    
+    def evaluation_creative(self):
+        # Write code about your own evaluation function here
+        # YOUR CODE HERE
+        pass
+
+
+
