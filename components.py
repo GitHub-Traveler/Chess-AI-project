@@ -203,7 +203,7 @@ class chessAgent:
 
     def evaluation(self):
         engine = chess.engine.SimpleEngine.popen_uci("stockfish\src\stockfish.exe")
-        result = engine.analyse(self.board, chess.engine.Limit(depth=))
+        result = engine.analyse(self.board, chess.engine.Limit(depth=0))
         print(list(result))
         return result['score']
     
