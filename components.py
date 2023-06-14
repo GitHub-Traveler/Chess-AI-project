@@ -3,12 +3,13 @@ from settings import *
 import chess
 import chess.engine
 import math
-
+import functools
 class ChessBoard:
     def __init__(self, screen: pygame.Surface, clock) -> None:
         self.screen = screen
         self.clock = clock
         self._initiate_game()
+
     def _initiate_game(self):
         self.current_turn = WHITE
         self.board = pygame.Surface((CHESS_PIECE_AREA * 8, CHESS_PIECE_AREA * 8))
@@ -53,6 +54,13 @@ class ChessBoard:
         else:
             pos = None
             click = False
+
+        if self.chessboard.turn == BLACK:
+            print(self.chessboard.legal_moves)
+            # self.agent.minimize.cache_clear()
+            # self.agent.maximize.cache_clear()
+            self.chessboard.push(self.agent.best_move())
+            return
         
         if not click:
             pass
@@ -92,32 +100,33 @@ class ChessBoard:
                         self.current_chosen_chess_piece = None
                         self.current_available_moves = []
             else:
-                if piece is not None:
-                    piece = piece.symbol()
-                    if piece.islower():
-                        self.current_chosen_chess_piece = piece
-                        self.current_available_moves = self.get_all_moves_onepiece(int_location_value)
-                        return
-                    else:
-                        for move in self.current_available_moves:
-                            if int_location_value == move.to_square:
-                                self.chessboard.push(move)
-                                self.current_chosen_chess_piece = None
-                                self.current_available_moves = []
-                                break
-                        else:
-                            self.current_chosen_chess_piece = None
-                            self.current_available_moves = []
-                else:
-                    for move in self.current_available_moves:
-                        if int_location_value == move.to_square:
-                            self.chessboard.push(move)
-                            self.current_chosen_chess_piece = None
-                            self.current_available_moves = []
-                            break
-                    else:
-                        self.current_chosen_chess_piece = None
-                        self.current_available_moves = []
+                self.chessboard.push(self.agent.best_move())
+                # if piece is not None:
+                #     piece = piece.symbol()
+                #     if piece.islower():
+                #         self.current_chosen_chess_piece = piece
+                #         self.current_available_moves = self.get_all_moves_onepiece(int_location_value)
+                #         return
+                #     else:
+                #         for move in self.current_available_moves:
+                #             if int_location_value == move.to_square:
+                #                 self.chessboard.push(move)
+                #                 self.current_chosen_chess_piece = None
+                #                 self.current_available_moves = []
+                #                 break
+                #         else:
+                #             self.current_chosen_chess_piece = None
+                #             self.current_available_moves = []
+                # else:
+                #     for move in self.current_available_moves:
+                #         if int_location_value == move.to_square:
+                #             self.chessboard.push(move)
+                #             self.current_chosen_chess_piece = None
+                #             self.current_available_moves = []
+                #             break
+                #     else:
+                #         self.current_chosen_chess_piece = None
+                #         self.current_available_moves = []
 
     def draw(self):
         # Draw the empty chess board surface
@@ -154,18 +163,21 @@ class chessAgent:
         self.board = board
         self.agent_color = agent_color
         self.maximum_depth = MAX_DEPTH_MINIMAX
+        self.engine = chess.engine.SimpleEngine.popen_uci("stockfish.exe")
 
+    # @functools.lru_cache(None)
     def best_move(self):
         if self.agent_color == WHITE:
-            return self.maximize(- math.inf, math.inf, 0)[0]
+            return self.maximize(- math.inf, math.inf, 0)[1]
         else:
-            return self.minimize(- math.inf, math.inf, 0)[0]
-    
+            return self.minimize(- math.inf, math.inf, 0)[1]
+        
+    # @functools.lru_cache(10000)
     def maximize(self, alpha: int, beta:int, current_depth):
         current_score = - math.inf
         current_move = None
 
-        if current_depth == MAX_DEPTH_MINIMAX:
+        if current_depth == MAX_DEPTH_MINIMAX or self.board.is_checkmate() == 0:
             return self.evaluation(), None
         
         for i in self.board.legal_moves:
@@ -181,6 +193,7 @@ class chessAgent:
             
         return current_score, current_move
     
+    # @functools.lru_cache(10000)
     def minimize(self, alpha: int, beta: int, current_depth: int):
         current_score = math.inf
         current_move = None
@@ -202,10 +215,8 @@ class chessAgent:
         return current_score, current_move
 
     def evaluation(self):
-        engine = chess.engine.SimpleEngine.popen_uci("stockfish\src\stockfish.exe")
-        result = engine.analyse(self.board, chess.engine.Limit(depth=))
-        print(list(result))
-        return result['score']
+        result = self.engine.analyse(self.board, chess.engine.Limit(depth=0))
+        return float(result['score'].relative.score(mate_score= math.inf))
     
     def evaluation_creative(self):
         # Write code about your own evaluation function here
