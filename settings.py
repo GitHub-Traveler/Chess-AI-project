@@ -5,4 +5,14 @@ CHESS_PIECE_AREA = 70
 FPS = 60
 WHITE = True
 BLACK = False
-MAX_DEPTH_MINIMAX = 2
+MAX_DEPTH_MINIMAX = 4
+
+DRAW_VALUE = 0
+
+PV = {
+    'pawn': 100,
+    'knight': 320,
+    'bishop': 330,
+    'rook': 500,
+    'queen': 950
+    }
