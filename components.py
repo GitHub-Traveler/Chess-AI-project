@@ -168,7 +168,7 @@ class chessAgent:
         self.maximum_depth = MAX_DEPTH_MINIMAX
         self.engine = chess.engine.SimpleEngine.popen_uci("stockfish.exe")
 
-    @functools.lru_cache(None)
+    # @functools.lru_cache(None)
     def best_move(self):
         if self.agent_color == WHITE:
             score, move, perf = self.maximize(- math.inf, math.inf, 0)
@@ -179,7 +179,7 @@ class chessAgent:
             print(score, move, perf)
             return move
         
-    @functools.lru_cache(10000)
+    # @functools.lru_cache(10000)
     def maximize(self, alpha: int, beta:int, current_depth):
         current_score = - math.inf
         current_move = None
@@ -201,7 +201,7 @@ class chessAgent:
             
         return current_score, current_move, perf
     
-    @functools.lru_cache(10000)
+    # @functools.lru_cache(10000)
     def minimize(self, alpha: int, beta: int, current_depth: int):
         current_score = math.inf
         current_move = None
