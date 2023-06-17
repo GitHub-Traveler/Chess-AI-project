@@ -211,7 +211,7 @@ class chessAgent:
         
         for i in self.board.legal_moves:
             self.board.push(i)
-            score, move, add_perf = self.minimize(alpha, beta, current_depth + 1)
+            score, move, add_perf = self.maximize(alpha, beta, current_depth + 1)
             perf += add_perf
             if score < current_score:
                 current_move = i
