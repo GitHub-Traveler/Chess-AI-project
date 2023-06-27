@@ -2,7 +2,7 @@ import pygame
 import sys
 from settings import *
 import ctypes
-from components import *
+from components_test import *
 class ChessGame:
 
     def __init__(self) -> None:

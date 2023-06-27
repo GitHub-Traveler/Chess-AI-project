@@ -1,14 +1,7 @@
-import cachetools
-import cachetools.keys
+import chess
 
-@cachetools.cached(cache={}, key=lambda a: cachetools.keys.hashkey(a))
-def fibonacci(a):
-    if a == 0:
-        return 0
-    if a == 1:
-        return 1
-    if a == 2:
-        return 2
-    return fibonacci(a - 1) + fibonacci(a - 2)
-
-print(fibonacci(100))
+def evaluation(self, color):
+    self.perf += 1
+    result = self.engine.analyse(self.board, chess.engine.Limit(depth=0))
+    
+    return int(result['score'].white().score(mate_score=10000000))
