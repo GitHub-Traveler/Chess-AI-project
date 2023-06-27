@@ -27,6 +27,7 @@ class ChessGame:
     def _handle_input(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT or event.type == pygame.WINDOWCLOSE:
+                self.board.agent.engine.quit()
                 pygame.quit()
                 quit()
             pos = pygame.mouse.get_pos()

@@ -18,7 +18,7 @@ class chessAgent:
         self.board = board
         self.agent_color = agent_color
         self.maximum_depth = MAX_DEPTH_MINIMAX
-        self.engine = engine = chess.engine.SimpleEngine.popen_uci("stockfish.exe")
+        self.engine = engine = chess.engine.SimpleEngine.popen_uci("stockfish_user_build.exe")
         self.transposition_table = {}
         self.hit = 0
         self.perf = 0
@@ -79,22 +79,14 @@ class chessAgent:
     
     def evaluation(self):
         self.perf += 1
-        result = self.engine.analyse(self.board, chess.engine.Limit(depth=0))
+        result = self.engine.analyse(self.board, chess.engine.Limit(depth=1))
         return int(result['score'].white().score(mate_score=10000000))
-        if not self.transposition_table.get(self.board, False):
-            result = self.engine.analyse(self.board, chess.engine.Limit(depth=0))
-            result = float(result['score'].white().score(mate_score=10000000))
-            self.transposition_table[self.board] = result
-            return result
-        else:
-            self.hit += 1
-            return self.transposition_table[self.board]
     
     def null_move_ordering(self, alpha, beta):
         pass
 
 import time
-board = chess.Board("1K2k3/2B5/1pbb2r1/p7/P6n/1Q5p/R2r4/2nB4 w - - 0 1")
+board = chess.Board()
 
 agent = chessAgent(board, board.turn)
 # agent = chessAgent(board, WHITE)

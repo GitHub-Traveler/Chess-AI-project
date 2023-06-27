@@ -4,6 +4,7 @@ import chess.polyglot
 from settings import *
 import math
 import random
+import stockfish
 
 def move_ordering(board: chess.Board):
     # Generate all legal moves
@@ -43,7 +44,7 @@ class chessAgent:
         self.board = board
         self.agent_color = agent_color
         self.maximum_depth = MAX_DEPTH_MINIMAX
-        self.engine = chess.engine.SimpleEngine.popen_uci("stockfish.exe")
+        self.engine = chess.engine.SimpleEngine.popen_uci("stockfish_user_build.exe")
         self.transposition_table = {}
         self.pv_move = None
         self.final_move = None
@@ -53,16 +54,17 @@ class chessAgent:
     def best_move_algorithm(self):
         if self.board.turn == WHITE:
             self.final_move = None
+            self.pv_move = None
             # score = self.alpha_beta_with_memory(0, - MATE_SCORE, MATE_SCORE, {}, WHITE)
             # score = self.MTDF(0, {}, BLACK)
             score = self.iterative_deepening(WHITE, {})
-            return score, self.final_move
+            return self.final_move, score
         else:
             self.final_move = None
             # score = self.alpha_beta_with_memory(0, - MATE_SCORE, MATE_SCORE, {}, BLACK)
             # score = self.MTDF(0, {}, BLACK)
             score = self.iterative_deepening(BLACK, {})
-            return score, self.final_move
+            return self.final_move, score
     
     def iterative_deepening(self, color:bool, transposition_table):
         firstguess = 0
@@ -97,10 +99,12 @@ class chessAgent:
         return current_value
 
     def alpha_beta_with_memory(self, current_depth, max_depth, alpha, beta, transposition_table, color):
+        best_action = None
         self.perf += 1
         original_alpha = alpha
         hash = self.board.__hash__()
         if hash in transposition_table:
+            best_action = transposition_table[hash]["best_action"]
             self.hit += 1
             entry = transposition_table[hash]
             if entry["depth"] >= current_depth:
@@ -121,7 +125,16 @@ class chessAgent:
 
         current_value = - MATE_SCORE - 1
         moves_list = move_ordering(self.board)
-
+        # if not self.board.is_check():
+        #     self.board.push(chess.Move.null())
+        #     score = - self.alpha_beta_with_memory(current_depth - 1 - R, max_depth, - beta, - alpha, transposition_table, not color)
+        #     self.board.pop()
+        #     if score >= beta:
+        #         return score
+            
+        if best_action is not None and best_action in moves_list:
+            moves_list.remove(best_action)
+            moves_list = [best_action] + moves_list
         if self.pv_move in moves_list:
             moves_list.remove(self.pv_move)
             moves_list = [self.pv_move] + moves_list
@@ -132,6 +145,7 @@ class chessAgent:
             self.board.pop()
             if value > current_value:
                 current_value = value
+                best_action = move
                 if current_depth == max_depth:
                     self.final_move = move
             alpha = max(current_value, alpha)
@@ -139,11 +153,11 @@ class chessAgent:
                 break
         
         if current_value <= original_alpha:
-            transposition_table[hash] = {"type": "upperbound", "value": current_value, "depth": current_depth}
+            transposition_table[hash] = {"type": "upperbound", "value": current_value, "depth": current_depth, "best_action": best_action}
         elif current_value >= beta:
-            transposition_table[hash] = {"type": "lowerbound", "value": current_value, "depth": current_depth}
+            transposition_table[hash] = {"type": "lowerbound", "value": current_value, "depth": current_depth, "best_action": best_action}
         else:
-            transposition_table[hash] = {"type": "exact", "value": current_value, "depth": current_depth}
+            transposition_table[hash] = {"type": "exact", "value": current_value, "depth": current_depth, "best_action": best_action}
 
         return current_value
     
@@ -156,16 +170,18 @@ class chessAgent:
         result = self.engine.analyse(self.board, chess.engine.Limit(depth=0))
         if color == WHITE:
             value = int(result['score'].white().score(mate_score=MATE_SCORE))
-            transposition_table[hash] = {"type": "exact", "value": value, "depth": depth}
+            transposition_table[hash] = {"type": "exact", "value": value, "depth": depth, "best_action": None}
             return value
         else:
             value = int(result['score'].black().score(mate_score=MATE_SCORE))
-            transposition_table[hash] = {"type": "exact", "value": value, "depth": depth}
+            transposition_table[hash] = {"type": "exact", "value": value, "depth": depth, "best_action": None}
             return value
     
 
 import time
-board = chess.Board("1K2k3/2B5/1pbb2r1/p7/P6n/1Q5p/R2r4/2nB4 w - - 0 1")
+import warnings
+
+board = chess.Board("6N1/P6K/1p3p1n/7P/Pn4N1/2p1bP2/3k1B2/2r5 w - - 0 1")
 
 agent = chessAgent(board, board.turn)
 print(board.legal_moves)
