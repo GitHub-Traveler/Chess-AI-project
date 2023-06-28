@@ -234,6 +234,7 @@ class chessAgent:
         return current_score, current_move, perf
 
     def evaluation(self):
+
         result = self.engine.analyse(self.board, chess.engine.Limit(depth=0))
         return float(result['score'].white().score(mate_score=10000000))
         # if not self.transposition_table.get(self.board, False):
@@ -244,6 +245,12 @@ class chessAgent:
         # else:
         #     self.hit += 1
         #     return self.transposition_table[self.board]
+=======
+        engine = chess.engine.SimpleEngine.popen_uci("stockfish\src\stockfish.exe")
+        result = engine.analyse(self.board, chess.engine.Limit(depth=0))
+        print(list(result))
+        return result['score']
+
     
 
 
