@@ -2,9 +2,6 @@ import chess.engine
 import chess
 import chess.polyglot
 from settings import *
-import math
-import random
-import stockfish
 
 def move_ordering(board: chess.Board):
     # Generate all legal moves
@@ -45,7 +42,6 @@ class chessAgent:
         self.agent_color = agent_color
         self.maximum_depth = MAX_DEPTH_MINIMAX
         self.engine = chess.engine.SimpleEngine.popen_uci("stockfish_user_build.exe")
-        self.transposition_table = {}
         self.pv_move = None
         self.final_move = None
         self.hit = 0
@@ -55,14 +51,11 @@ class chessAgent:
         if self.board.turn == WHITE:
             self.final_move = None
             self.pv_move = None
-            # score = self.alpha_beta_with_memory(0, - MATE_SCORE, MATE_SCORE, {}, WHITE)
-            # score = self.MTDF(0, {}, BLACK)
             score = self.iterative_deepening(WHITE, {})
             return self.final_move, score
         else:
             self.final_move = None
-            # score = self.alpha_beta_with_memory(0, - MATE_SCORE, MATE_SCORE, {}, BLACK)
-            # score = self.MTDF(0, {}, BLACK)
+            self.pv_move = None
             score = self.iterative_deepening(BLACK, {})
             return self.final_move, score
     
@@ -125,12 +118,6 @@ class chessAgent:
 
         current_value = - MATE_SCORE - 1
         moves_list = move_ordering(self.board)
-        # if not self.board.is_check():
-        #     self.board.push(chess.Move.null())
-        #     score = - self.alpha_beta_with_memory(current_depth - 1 - R, max_depth, - beta, - alpha, transposition_table, not color)
-        #     self.board.pop()
-        #     if score >= beta:
-        #         return score
             
         if best_action is not None and best_action in moves_list:
             moves_list.remove(best_action)
@@ -176,6 +163,23 @@ class chessAgent:
             value = int(result['score'].black().score(mate_score=MATE_SCORE))
             transposition_table[hash] = {"type": "exact", "value": value, "depth": depth, "best_action": None}
             return value
+    
+    def move_ordering_2(self, transposition_table):
+        moves = list(self.board.legal_moves)
+
+        # Create a dictionary to store the priority of each move
+        move_priority = {}
+
+        # Assign a priority to each move
+        for move in moves:
+            self.board.push(move)
+            hash = self.board.__hash__()
+            priority = self.evaluation(self.board.turn, transposition_table, hash, 0)
+            self.board.pop()
+            move_priority[move] = priority
+        sorted_moves = sorted(moves, key=lambda move: move_priority[move])
+
+        return sorted_moves
     
 
 import time

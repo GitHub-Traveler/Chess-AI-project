@@ -62,8 +62,6 @@ class ChessBoard:
 
         if self.chessboard.turn == BLACK:
             print(self.chessboard.legal_moves)
-            # self.agent.minimize.cache_clear()
-            # self.agent.maximize.cache_clear()
             self.chessboard.push(self.agent.best_move_algorithm()[0])
             return
         
