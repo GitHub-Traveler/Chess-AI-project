@@ -6,14 +6,6 @@ import chess.polyglot
 
 from settings import *
 import math
-import cachetools
-from cachetools.keys import hashkey
-
-
-=======
-from settings import *
-import math
-import functools
 
 class chessAgent:
     def __init__(self, board: chess.Board, agent_color):
@@ -29,6 +21,8 @@ class chessAgent:
         self.transposition_table = {}
         self.hit = 0
         self.perf = 0
+
+        
     def best_move(self):
         if self.agent_color == WHITE:
             self.transposition_table = {}
@@ -37,7 +31,6 @@ class chessAgent:
             self.transposition_table = {}
             return self.minimize(- math.inf, math.inf, 0)
         
-    # @cachetools.cached(cache=cachetools.LRUCache(maxsize=10000))
     def maximize(self, alpha, beta, current_depth):
         self.perf += 1
         current_score = - math.inf
@@ -50,59 +43,13 @@ class chessAgent:
             self.board.push(i)
             score, move, additional = self.minimize(alpha, beta, current_depth + 1)
             perf += additional
-=======
-        self.board = board
-        self.agent_color = agent_color
-        self.maximum_depth = MAX_DEPTH_MINIMAX
-        self.engine = engine = chess.engine.SimpleEngine.popen_uci("stockfish.exe")
-
-    @functools.lru_cache(None)
-    def best_move(self):
-        if self.agent_color == WHITE:
-            return self.maximize(- math.inf, math.inf, 0)[1]
-        else:
-            return self.minimize(- math.inf, math.inf, 0)[1]
-        
-    @functools.lru_cache(10000)
-    def maximize(self, alpha: int, beta:int, current_depth):
-        current_score = - math.inf
-        current_move = None
-
-        if current_depth == MAX_DEPTH_MINIMAX or len(self.board.legal_moves):
-            return self.evaluation(), None
-        
-        for i in self.board.legal_moves:
-            self.board.push(i)
-            score, move = self.minimize(alpha, beta, current_depth + 1)
-
-            if score > current_score:
-                current_move = i
-                current_score = score
-            self.board.pop()
-
-            if current_score >= beta:
-                return current_score, current_move, perf
-            alpha = max(alpha, current_score)
-            
-        return current_score, current_move, perf
-    
-    # @cachetools.cached(cache=cachetools.LRUCache(maxsize=10000))
-    def minimize(self, alpha, beta, current_depth: int):
-        self.perf += 1
-        current_score = math.inf
-        current_move = None
-        perf = 0
-        if current_depth == MAX_DEPTH_MINIMAX or self.board.is_checkmate():
-            return self.evaluation(), None, 1
-        
-=======
             if current_score > beta:
                 return current_score, current_move
             alpha = max(alpha, current_score)
             
         return current_score, current_move
-    
-    @functools.lru_cache(10000)
+
+
     def minimize(self, alpha: int, beta: int, current_depth: int):
         current_score = math.inf
         current_move = None
@@ -157,10 +104,7 @@ class chessAgent:
 
 import time
 board = chess.Board()
-
-
 agent = chessAgent(board, board.turn)
-# agent = chessAgent(board, WHITE)
 
 start = time.perf_counter()
 print(agent.best_move())
@@ -169,7 +113,3 @@ print(stop - start)
 
 print(agent.hit)
 print(agent.perf)
-=======
-agent = chessAgent(board, WHITE)
-print(agent.evaluation().white().score())
-agent.engine.close()

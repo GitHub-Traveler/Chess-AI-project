@@ -234,7 +234,6 @@ class chessAgent:
         return current_score, current_move, perf
 
     def evaluation(self):
-
         result = self.engine.analyse(self.board, chess.engine.Limit(depth=0))
         return float(result['score'].white().score(mate_score=10000000))
         # if not self.transposition_table.get(self.board, False):
@@ -245,45 +244,10 @@ class chessAgent:
         # else:
         #     self.hit += 1
         #     return self.transposition_table[self.board]
-=======
-        engine = chess.engine.SimpleEngine.popen_uci("stockfish\src\stockfish.exe")
-        result = engine.analyse(self.board, chess.engine.Limit(depth=0))
-        print(list(result))
-        return result['score']
 
     
 
 
-    def creative_evaluation(self):
-        if self.board.is_insufficient_material():
-            return DRAW_VALUE
-
-        wp = len(self.board.pieces(chess.PAWN, chess.WHITE))
-        bp = len(self.board.pieces(chess.PAWN, chess.BLACK))
-
-        wn = len(self.board.pieces(chess.KNIGHT, chess.WHITE))
-        bn = len(self.board.pieces(chess.KNIGHT, chess.BLACK))
-
-        wb = len(self.board.pieces(chess.BISHOP, chess.WHITE))
-        bb = len(self.board.pieces(chess.BISHOP, chess.BLACK))
-
-        wr = len(self.board.pieces(chess.ROOK, chess.WHITE))
-        br = len(self.board.pieces(chess.ROOK, chess.BLACK))
-
-        wq = len(self.board.pieces(chess.QUEEN, chess.WHITE))
-        bq = len(self.board.pieces(chess.QUEEN, chess.BLACK))
-
-        value = (
-            PV['pawn'] * (wp - bp) +
-            PV['knight'] * (wn - bn) +
-            PV['bishop'] * (wb - bb) +
-            PV['rook'] * (wr - br) +
-            PV['queen'] * (wq - bq)
-        )
-
-        if self.board.turn == chess.WHITE:
-            return value
-        return -value
 
 
 
