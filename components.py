@@ -276,38 +276,7 @@ class chessAgent:
             transposition_table[hash] = {"type": "exact", "value": value, "depth": depth, "best_action": None}
             return value
     
-    
-        
-    def creative_evaluation(self):
-        if self.board.is_insufficient_material():
-            return DRAW_VALUE
 
-        wp = len(self.board.pieces(chess.PAWN, chess.WHITE))
-        bp = len(self.board.pieces(chess.PAWN, chess.BLACK))
-
-        wn = len(self.board.pieces(chess.KNIGHT, chess.WHITE))
-        bn = len(self.board.pieces(chess.KNIGHT, chess.BLACK))
-
-        wb = len(self.board.pieces(chess.BISHOP, chess.WHITE))
-        bb = len(self.board.pieces(chess.BISHOP, chess.BLACK))
-
-        wr = len(self.board.pieces(chess.ROOK, chess.WHITE))
-        br = len(self.board.pieces(chess.ROOK, chess.BLACK))
-
-        wq = len(self.board.pieces(chess.QUEEN, chess.WHITE))
-        bq = len(self.board.pieces(chess.QUEEN, chess.BLACK))
-
-        value = (
-            PV['pawn'] * (wp - bp) +
-            PV['knight'] * (wn - bn) +
-            PV['bishop'] * (wb - bb) +
-            PV['rook'] * (wr - br) +
-            PV['queen'] * (wq - bq)
-        )
-
-        if self.board.turn == chess.WHITE:
-            return value
-        return -value
 
 
 
