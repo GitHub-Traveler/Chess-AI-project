@@ -154,14 +154,10 @@ class chessAgent:
         if self.board.turn == WHITE:
             self.final_move = None
             self.pv_move = None
-            # score = self.alpha_beta_with_memory(0, - MATE_SCORE, MATE_SCORE, {}, WHITE)
-            # score = self.MTDF(0, {}, BLACK)
             score = self.iterative_deepening(WHITE, {})
             return self.final_move, score
         else:
             self.final_move = None
-            # score = self.alpha_beta_with_memory(0, - MATE_SCORE, MATE_SCORE, {}, BLACK)
-            # score = self.MTDF(0, {}, BLACK)
             score = self.iterative_deepening(BLACK, {})
             return self.final_move, score
     
@@ -224,12 +220,6 @@ class chessAgent:
 
         current_value = - MATE_SCORE - 1
         moves_list = move_ordering(self.board)
-        # if not self.board.is_check():
-        #     self.board.push(chess.Move.null())
-        #     score = - self.alpha_beta_with_memory(current_depth - 1 - R, max_depth, - beta, - alpha, transposition_table, not color)
-        #     self.board.pop()
-        #     if score >= beta:
-        #         return score
             
         if best_action is not None and best_action in moves_list:
             moves_list.remove(best_action)
