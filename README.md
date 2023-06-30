@@ -2,7 +2,7 @@
 ## Team members
 Hoang Trung Thanh: V202100516 \
 Nguyen Nhat Minh: \
-Tran Vu:
+Tran Vu:V202100569
 
 ## Introduction
 This project is a project done in the COMP2050 course. \

@@ -5,7 +5,7 @@ def move_ordering(board: chess.Board):
     moves = list(board.legal_moves)
 
     # Create a dictionary to store the priority of each move
-    move_priority = {}
+    move_priority = {} 
 
     # Assign a priority to each move
     for move in moves:

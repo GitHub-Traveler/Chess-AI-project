@@ -245,7 +245,7 @@ class chessAgent:
         # else:
         #     self.hit += 1
         #     return self.transposition_table[self.board]
-=======
+
         engine = chess.engine.SimpleEngine.popen_uci("stockfish\src\stockfish.exe")
         result = engine.analyse(self.board, chess.engine.Limit(depth=0))
         print(list(result))
