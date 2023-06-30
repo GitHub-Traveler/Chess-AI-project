@@ -1,6 +1,5 @@
 import sys
 import os
-import warnings
 
 
 from game import ChessGame

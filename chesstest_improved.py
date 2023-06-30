@@ -179,6 +179,7 @@ class chessAgent:
     
 
 import time
+import warnings
 
 board = chess.Board("6N1/P6K/1p3p1n/7P/Pn4N1/2p1bP2/3k1B2/2r5 w - - 0 1")
 
