@@ -37,12 +37,11 @@ class chessAgent:
         current_move = None
         perf = 0
         if current_depth == MAX_DEPTH_MINIMAX or self.board.is_checkmate():
-            return self.evaluation(), None, 1
+            return self.evaluation(), None
         
         for i in self.board.legal_moves:
             self.board.push(i)
-            score, move, additional = self.minimize(alpha, beta, current_depth + 1)
-            perf += additional
+            score, move = self.minimize(alpha, beta, current_depth + 1)
             if current_score > beta:
                 return current_score, current_move
             alpha = max(alpha, current_score)
@@ -72,36 +71,8 @@ class chessAgent:
 
     def evaluation(self):
         result = self.engine.analyse(self.board, chess.engine.Limit(depth=0))
-        return result['score']
+        return int(result['score'].white().score(mate_score=MATE_SCORE))
     
-    def evaluation_creative(self):
-        # Write code about your own evaluation function here
-        # YOUR CODE HERE
-        pass
-
-
-        for i in self.board.legal_moves:
-            self.board.push(i)
-            score, move, additional = self.maximize(alpha, beta, current_depth + 1)
-            perf += additional
-            if score < current_score:
-                current_move = i
-                current_score = score
-            self.board.pop()
-            if current_score <= alpha:
-                return current_score, current_move, perf
-            beta = min(beta, current_score)
-
-        return current_score, current_move, perf
-    
-    def evaluation(self):
-        self.perf += 1
-        result = self.engine.analyse(self.board, chess.engine.Limit(depth=1))
-        return int(result['score'].white().score(mate_score=10000000))
-    
-    def null_move_ordering(self, alpha, beta):
-        pass
-
 import time
 board = chess.Board()
 agent = chessAgent(board, board.turn)
