@@ -106,32 +106,6 @@ class ChessBoard:
                         self.current_available_moves = []
             else:
                 self.chessboard.push(self.agent.best_move())
-                # if piece is not None:
-                #     piece = piece.symbol()
-                #     if piece.islower():
-                #         self.current_chosen_chess_piece = piece
-                #         self.current_available_moves = self.get_all_moves_onepiece(int_location_value)
-                #         return
-                #     else:
-                #         for move in self.current_available_moves:
-                #             if int_location_value == move.to_square:
-                #                 self.chessboard.push(move)
-                #                 self.current_chosen_chess_piece = None
-                #                 self.current_available_moves = []
-                #                 break
-                #         else:
-                #             self.current_chosen_chess_piece = None
-                #             self.current_available_moves = []
-                # else:
-                #     for move in self.current_available_moves:
-                #         if int_location_value == move.to_square:
-                #             self.chessboard.push(move)
-                #             self.current_chosen_chess_piece = None
-                #             self.current_available_moves = []
-                #             break
-                #     else:
-                #         self.current_chosen_chess_piece = None
-                #         self.current_available_moves = []
 
     def draw(self):
         # Draw the empty chess board surface

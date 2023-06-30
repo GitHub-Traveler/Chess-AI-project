@@ -22,15 +22,14 @@ class chessAgent:
         self.transposition_table = {}
         self.hit = 0
         self.perf = 0
+
     def best_move(self):
-        if self.agent_color == WHITE:
-            self.transposition_table = {}
-            return self.maximize(- math.inf, math.inf, 0)
+        if self.board.turn == WHITE:
+            return self.maximize(- MATE_SCORE, MATE_SCORE, 0)
         else:
-            self.transposition_table = {}
-            return self.minimize(- math.inf, math.inf, 0)
-        
-    # @cachetools.cached(cache=cachetools.LRUCache(maxsize=10000))
+            self.board.turn = {}
+            return self.minimize(- MATE_SCORE, MATE_SCORE, 0)
+
     def maximize(self, alpha, beta, current_depth):
         self.perf += 1
         current_score = - math.inf
@@ -53,7 +52,6 @@ class chessAgent:
             
         return current_score, current_move, perf
     
-    # @cachetools.cached(cache=cachetools.LRUCache(maxsize=10000))
     def minimize(self, alpha, beta, current_depth: int):
         self.perf += 1
         current_score = math.inf
@@ -80,21 +78,25 @@ class chessAgent:
     def evaluation(self):
         self.perf += 1
         result = self.engine.analyse(self.board, chess.engine.Limit(depth=1))
-        return int(result['score'].white().score(mate_score=10000000))
-    
-    def null_move_ordering(self, alpha, beta):
-        pass
+        return int(result['score'].white().score(mate_score=MATE_SCORE))
 
 import time
+file_path = "board_fen_list.txt"
 board = chess.Board()
+agent = chessAgent(board)
+time_processed_list = []
+nodes_visited_list = []
+with open(file_path, 'r') as board_list:
+    for board_fen in board_list:
+        board_fen = board_fen.strip()
+        agent.board.set_fen(board_fen)
+        start = time.perf_counter()
+        agent.best_move_algorithm()
+        stop = time.perf_counter()
+        time_processed = stop - start
+        time_processed_list.append(time_processed)
+        nodes_visited_list.append(agent.perf)
 
-agent = chessAgent(board, board.turn)
-# agent = chessAgent(board, WHITE)
-
-start = time.perf_counter()
-print(agent.best_move())
-stop = time.perf_counter()
-print(stop - start)
-
-print(agent.hit)
-print(agent.perf)
+print(sum(time_processed_list) / len(time_processed_list))
+print(sum(nodes_visited_list) / len(nodes_visited_list))
+agent.engine.close()
