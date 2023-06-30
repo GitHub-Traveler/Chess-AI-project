@@ -2,9 +2,7 @@ import chess.engine
 import chess
 import chess.polyglot
 from settings import *
-import math
-import random
-import stockfish
+import csv
 
 def move_ordering(board: chess.Board):
     # Generate all legal moves
@@ -33,7 +31,7 @@ def move_ordering(board: chess.Board):
     return sorted_moves
 
 class chessAgent:
-    def __init__(self, board: chess.Board, agent_color: bool):
+    def __init__(self, board: chess.Board):
         # Initialize the board and the side in which the chess agent will be
         # If agent_color == WHITE, then the agent will be of WHITE side, and if agent_color == BLACK, then
         # the agent will be of BLACK side.
@@ -42,7 +40,6 @@ class chessAgent:
 
         chess.Board.__hash__ = chess.polyglot.zobrist_hash
         self.board = board
-        self.agent_color = agent_color
         self.maximum_depth = MAX_DEPTH_MINIMAX
         self.engine = chess.engine.SimpleEngine.popen_uci("stockfish_user_build.exe")
         self.transposition_table = {}
@@ -52,24 +49,19 @@ class chessAgent:
         self.perf = 0
 
     def best_move_algorithm(self):
+        self.hit = 0
+        self.perf = 0
+        self.final_move = None
+        self.pv_move = None
         if self.board.turn == WHITE:
-            self.final_move = None
-            self.pv_move = None
-            # score = self.alpha_beta_with_memory(0, - MATE_SCORE, MATE_SCORE, {}, WHITE)
-            # score = self.MTDF(0, {}, BLACK)
             score = self.iterative_deepening(WHITE, {})
             return self.final_move, score
         else:
-            self.final_move = None
-            # score = self.alpha_beta_with_memory(0, - MATE_SCORE, MATE_SCORE, {}, BLACK)
-            # score = self.MTDF(0, {}, BLACK)
             score = self.iterative_deepening(BLACK, {})
             return self.final_move, score
     
     def iterative_deepening(self, color:bool, transposition_table):
         firstguess = 0
-        # for d in range(0, self.maximum_depth + 1):
-        #         firstguess = self.MTDF(firstguess, transposition_table, color, self.maximum_depth - d)
         if self.maximum_depth % 2 == 1:
             for d in range(1, self.maximum_depth + 1, 2):
                 firstguess = self.MTDF(firstguess, transposition_table, color, d)
@@ -177,23 +169,32 @@ class chessAgent:
             transposition_table[hash] = {"type": "exact", "value": value, "depth": depth, "best_action": None}
             return value
     
-
 import time
-import warnings
+import csv
+file_path = "board_fen_list.txt"
+board = chess.Board()
+agent = chessAgent(board)
+time_processed_list = []
+nodes_visited_list = []
+file = open("result_improved.csv", "w", newline='')
+writer = csv.writer(file)
+writer.writerow(["Board No.", "Time Processed", "Nodes Visited", "Best Move"])
+boardno = 1
+with open(file_path, 'r') as board_list:
+    for board_fen in board_list:
+        board_fen = board_fen.strip()
+        agent.board.set_fen(board_fen)
+        start = time.perf_counter()
+        agent.best_move_algorithm()
+        stop = time.perf_counter()
+        time_processed = stop - start
+        time_processed_list.append(time_processed)
+        nodes_visited_list.append(agent.perf)
+        writer.writerow([boardno, time_processed, agent.perf, agent.final_move.uci()])
+        boardno += 1
+        
 
-board = chess.Board("6N1/P6K/1p3p1n/7P/Pn4N1/2p1bP2/3k1B2/2r5 w - - 0 1")
-
-agent = chessAgent(board, board.turn)
-print(board.legal_moves)
-start = time.perf_counter()
-print(agent.best_move_algorithm())
-stop = time.perf_counter()
-print(stop - start)
-
-
-print("Best move:", agent.final_move)
-print(agent.hit)
-print(agent.perf)
+print(sum(time_processed_list) / len(time_processed_list))
+print(sum(nodes_visited_list) / len(nodes_visited_list))
 agent.engine.close()
-
-
+file.close()
