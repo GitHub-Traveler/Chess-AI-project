@@ -2,6 +2,40 @@ import chess.engine
 import chess
 import chess.polyglot
 from settings import *
+import math
+
+from chess import Move
+
+def distance_to_center(move: Move):
+    #Function to calculate the distance to the center
+    end_pos = move.to_square
+    y_dict = {"a":3, "b":2, "c":1, "d":0, "e":0, "f":1,"g":2,"h":3}
+    x = abs(float(end_pos[1]) - 4.5)
+    for i in y_dict.keys():
+        if end_pos[0] == i:
+            y = y_dict[i]
+            break
+    dis_center = math.sqrt(x**2 + y**2)
+    return int(dis_center)
+
+def extra_value(move: Move):
+# Calculate the value that get whenever detect a capture
+    point_for_piece = {10: ["p", "P"], 30: ["b","B","n","N"], 50 :["r", "R"], 90: ["q","Q"]}
+    a = "q" #Should be pieces in the from_square
+    b = "k" #Should be piece in the to_square
+    a_value = 0
+    b_value = 0
+    for v in point_for_piece.values():
+        if a_value == 0:
+            if a in v:
+                a_value = list(point_for_piece.keys())[list(point_for_piece.values()).index(v)]
+                        
+        if b_value == 0:
+            if b in v:
+                b_value = list(point_for_piece.keys())[list(point_for_piece.values()).index(v)]
+        if a_value != 0 and b_value!= 0:
+            break 
+    return b_value - a_value
 
 def move_ordering(board: chess.Board):
     # Generate all legal moves
@@ -12,15 +46,27 @@ def move_ordering(board: chess.Board):
 
     # Assign a priority to each move
     for move in moves:
+        
         priority = 0
+        #Prioritize moves that occupie the center of te board
+        priority -= distance_to_center(move)*5
 
         # If the move is a capture, increase its priority
         if board.is_capture(move):
-            priority += 100
+            priority += (extra_value(move) +  100)
 
         # If the move gives a check, increase its priority
         if board.gives_check(move):
             priority += 50
+        
+        #Try to that move
+        board.push(move)
+        new_moves = list(board.legal_moves)
+        #Potential additional number of squares in the next turn when choose that move
+        extra_potential_area = len(moves) - len(new_moves) 
+        priority += 5*extra_potential_area #The more potential squares it create, the higher priority it has
+        #Undo the move
+        board.pop()
 
         move_priority[move] = priority
 
@@ -28,6 +74,7 @@ def move_ordering(board: chess.Board):
     sorted_moves = sorted(moves, key=lambda move: move_priority[move], reverse=True)
 
     return sorted_moves
+
 
 class chessAgent:
     def __init__(self, board: chess.Board):
