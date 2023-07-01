@@ -54,7 +54,7 @@ def move_ordering(board: chess.Board):
         #priority -= distance_to_center(move, board)*5
 
         # If the move is a capture, increase its priority
-        if board.is_capture_no_en_passant(move):            
+        if board.is_capture(move) and not board.is_en_passant(move):            
             priority += (extra_value(move, board)*100 +  100)
         if board.is_en_passant(move):
             priority += 10
