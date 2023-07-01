@@ -1,6 +1,6 @@
 import chess
 
-def move_ordering(board: chess.Board):
+def move_ordering(board: chess.Board) -> list:
     # Generate all legal moves
     moves = list(board.legal_moves)
 
