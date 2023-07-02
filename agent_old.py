@@ -85,7 +85,7 @@ time_processed_list = []
 nodes_visited_list = []
 file = open("result_old.csv", "w", newline='')
 writer = csv.writer(file)
-writer.writerow(["Board No.", "Time Processed", "Nodes Visited", "Best Move"])
+writer.writerow(["Board No.", "Time Processed", "Nodes Visited", "Best Score", "Best Move"])
 boardno = 1
 with open(file_path, 'r') as board_list:
     for board_fen in board_list:
@@ -97,7 +97,7 @@ with open(file_path, 'r') as board_list:
         time_processed = stop - start
         time_processed_list.append(time_processed)
         nodes_visited_list.append(agent.perf)
-        writer.writerow([boardno, time_processed, agent.perf, move.uci()])
+        writer.writerow([boardno, time_processed, agent.perf, score, move.uci()])
         boardno += 1
         
 

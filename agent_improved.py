@@ -96,11 +96,11 @@ class chessAgent:
         original_alpha = alpha
         hash = self.board.__hash__()
         if hash in transposition_table:
-            best_action = transposition_table[hash]["best_action"]
+            
             self.hit += 1
             entry = transposition_table[hash]
+            best_action = entry["best_action"]
             if entry["depth"] >= current_depth:
-                # print(current_depth, entry["depth"], "Somethings went wrong")
                 if entry["type"] == "exact":
                     return entry["value"]
                 if entry["type"] == "lowerbound":
@@ -117,12 +117,6 @@ class chessAgent:
 
         current_value = - MATE_SCORE - 1
         moves_list = move_ordering(self.board)
-        # if not self.board.is_check():
-        #     self.board.push(chess.Move.null())
-        #     score = - self.alpha_beta_with_memory(current_depth - 1 - R, max_depth, - beta, - alpha, transposition_table, not color)
-        #     self.board.pop()
-        #     if score >= beta:
-        #         return score
             
         if best_action is not None and best_action in moves_list:
             moves_list.remove(best_action)
@@ -143,7 +137,7 @@ class chessAgent:
             alpha = max(current_value, alpha)
             if alpha >= beta:
                 break
-        
+
         if current_value <= original_alpha:
             transposition_table[hash] = {"type": "upperbound", "value": current_value, "depth": current_depth, "best_action": best_action}
         elif current_value >= beta:
@@ -178,19 +172,19 @@ time_processed_list = []
 nodes_visited_list = []
 file = open("result_improved.csv", "w", newline='')
 writer = csv.writer(file)
-writer.writerow(["Board No.", "Time Processed", "Nodes Visited", "Best Move"])
+writer.writerow(["Board No.", "Time Processed", "Nodes Visited", "Best Move", "Best Score"])
 boardno = 1
 with open(file_path, 'r') as board_list:
     for board_fen in board_list:
         board_fen = board_fen.strip()
         agent.board.set_fen(board_fen)
         start = time.perf_counter()
-        agent.best_move_algorithm()
+        move, score = agent.best_move_algorithm()
         stop = time.perf_counter()
         time_processed = stop - start
         time_processed_list.append(time_processed)
         nodes_visited_list.append(agent.perf)
-        writer.writerow([boardno, time_processed, agent.perf, agent.final_move.uci()])
+        writer.writerow([boardno, time_processed, agent.perf, move.uci(), score])
         boardno += 1
         
 
