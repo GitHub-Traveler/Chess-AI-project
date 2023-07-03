@@ -1,3 +1,7 @@
+"""
+This module contains the class chessAgent, which is our main AI agent for solving the chess board.
+This is the old version of the agent, which only contains the ordinary MiniMax algorithm.
+"""
 import chess.engine
 
 import chess
@@ -8,15 +12,10 @@ from settings import *
 import math
 class chessAgent:
     def __init__(self, board: chess.Board):
-        # Initialize the board and the side in which the chess agent will be
-        # If agent_color == WHITE, then the agent will be of WHITE side, and if agent_color == BLACK, then
-        # the agent will be of BLACK side.
-
-        chess.Board.__hash__ = chess.polyglot.zobrist_hash
         self.board = board
         self.maximum_depth = MAX_DEPTH_MINIMAX
         self.engine = engine = chess.engine.SimpleEngine.popen_uci("stockfish_user_build.exe")
-        self.transposition_table = {}
+
         self.hit = 0
         self.perf = 0
 

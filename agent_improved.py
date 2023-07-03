@@ -1,3 +1,7 @@
+"""
+This module contains the class chessAgent, which is our main AI agent for solving the chess board.
+"""
+
 import chess.engine
 import chess
 import chess.polyglot
@@ -10,14 +14,11 @@ import csv
 from chess import Move, Piece
 from ultility_function import move_ordering
 
+
+
 class chessAgent:
     def __init__(self, board: chess.Board):
-        # Initialize the board and the side in which the chess agent will be
-        # If agent_color == WHITE, then the agent will be of WHITE side, and if agent_color == BLACK, then
-        # the agent will be of BLACK side.
-        # The transposition table saves the state of the chess board as (lowerbound, upperbound, depth)
-        # lowerbound and upperbound are alpha and beta respectively
-
+        # Initiate the agent, which takes the chess.Board object as argument.
         chess.Board.__hash__ = chess.polyglot.zobrist_hash
         self.board = board
         self.maximum_depth = MAX_DEPTH_MINIMAX
@@ -29,6 +30,7 @@ class chessAgent:
         self.perf = 0
 
     def best_move_algorithm(self):
+        # Main function, which returns the best move and the NegaMax value.
         self.hit = 0
         self.perf = 0
         self.final_move = None
@@ -41,6 +43,12 @@ class chessAgent:
             return self.final_move, score
     
     def iterative_deepening(self, color:bool, transposition_table):
+        """
+        Iterative Deepening Framework
+        Calls the function MTDF() with each depth
+        The function jump two depths at a time as chess is an alternating game, NegaMax/MiniMax values of odds and evens depth
+        will be similar and can be used for guessing the deeper MiniMax values
+        """
         firstguess = 0
         if self.maximum_depth % 2 == 1:
             for d in range(1, self.maximum_depth + 1, 2):
@@ -53,6 +61,11 @@ class chessAgent:
         return firstguess
 
     def MTDF(self, f:int, transposition_table: dict, color: bool, max_depth: int):
+        """
+        MTD(f) function, which is an improvement of Alpha-Beta Searcch
+        Initiate the lowerbound and upperbound, and use the guess with repeated calls of Zero-Window Search
+        for closing the upper bound and lower bound.
+        """
         current_value = f
         lowerbound = - MATE_SCORE
         upperbound = MATE_SCORE
@@ -71,12 +84,15 @@ class chessAgent:
         return current_value
 
     def alpha_beta_with_memory(self, current_depth, max_depth, alpha, beta, transposition_table, color):
+        """
+        The main alpha-beta function, but with transposition table implemented to reduce time searched.
+        """
         best_action = None
         self.perf += 1
         original_alpha = alpha
         hash = self.board.__hash__()
+        # Search in the transposition table using Zobrist hash
         if hash in transposition_table:
-            
             self.hit += 1
             entry = transposition_table[hash]
             best_action = entry["best_action"]
@@ -91,15 +107,16 @@ class chessAgent:
                 if alpha >= beta:
                     return entry["value"]
             
+        # Return evaluation results if it is the terminal state or maximum depth
         if current_depth == 0 or self.board.is_checkmate():
             value = self.evaluation(color, transposition_table, hash, current_depth)
             return value
 
+        # Order the moves using heuristic move ordering
         current_value = - MATE_SCORE - 1
         moves_list = move_ordering(self.board)
-
-        # moves_list = move_ordering(self.board)
-            
+        
+        # Find the PV-Move ordering using the transposition table and saved best move
         if best_action is not None and best_action in moves_list:
             moves_list.remove(best_action)
             moves_list = [best_action] + moves_list
@@ -107,6 +124,7 @@ class chessAgent:
             moves_list.remove(self.pv_move)
             moves_list = [self.pv_move] + moves_list
 
+        # Alpha-Beta Search loops
         for move in moves_list:
             self.board.push(move)
             value = - self.alpha_beta_with_memory(current_depth - 1, max_depth, - beta, - alpha, transposition_table, not color)
@@ -119,7 +137,8 @@ class chessAgent:
             alpha = max(current_value, alpha)
             if alpha >= beta:
                 break
-
+        
+        # Save the results in the transposition table.
         if current_value <= original_alpha:
             transposition_table[hash] = {"type": "upperbound", "value": current_value, "depth": current_depth, "best_action": best_action}
         elif current_value >= beta:
@@ -131,10 +150,16 @@ class chessAgent:
     
     
     def evaluation(self, color, transposition_table, hash, depth):
+        """
+        Evaluation function for the Alpha-Beta Search
+        Stockfish Evaluation is used for convenience, as the evaluation function of chess is extremely complicated
+        """
         self.perf += 1
+        # Search for results in the transposition table
         if hash in transposition_table:
             self.hit += 1
             return transposition_table[hash]["value"]
+        # If there is no, call the engine API and return the value of chessboard with respect to the current player
         result = self.engine.analyse(self.board, chess.engine.Limit(depth=0))
         if color == WHITE:
             value = int(result['score'].white().score(mate_score=MATE_SCORE))
