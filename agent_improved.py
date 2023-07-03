@@ -7,10 +7,8 @@ from chess import Move, Piece
 
 def distance_to_center(move: Move, board : chess.Board):
     #Function to calculate the distance to the center
-    print(move.to_square)
-    print(type(board.piece_at(move.to_square)))
+
     end_pos = move.to_square
-    print(end_pos)
     
     dis_center = float(end_pos) - 32.5
     return int(dis_center)
@@ -35,9 +33,6 @@ def extra_value(move: Move, board: chess.Board):
     return b_value - a_value
 
 def move_ordering(board: chess.Board):
-
-    
-
 
     # Generate all legal moves
     moves = list(board.legal_moves)
@@ -68,7 +63,7 @@ def move_ordering(board: chess.Board):
             priority += 100
 
         
-        """"
+        """
         #Try to that move
         board.push(move)
         new_moves = list(board.legal_moves)
@@ -78,9 +73,7 @@ def move_ordering(board: chess.Board):
         #Undo the move
         board.pop()
         """
-        
-        
-
+    
         move_priority[move] = priority
 
     # Sort the moves based on their priority (descending order)
@@ -89,33 +82,6 @@ def move_ordering(board: chess.Board):
     
 
     return sorted_moves
-""""
-def move_ordering(board: chess.Board):
-    # Generate all legal moves
-    moves = list(board.legal_moves)
-
-    # Create a dictionary to store the priority of each move
-    move_priority = {}
-
-    # Assign a priority to each move
-    for move in moves:
-        priority = 0
-
-        # If the move is a capture, increase its priority
-        if board.is_capture(move):
-            priority += 100
-
-        # If the move gives a check, increase its priority
-        if board.gives_check(move):
-            priority += 50
-
-        move_priority[move] = priority
-
-    # Sort the moves based on their priority (descending order)
-    sorted_moves = sorted(moves, key=lambda move: move_priority[move], reverse=True)
-
-    return sorted_moves
-"""
 
 class chessAgent:
     def __init__(self, board: chess.Board):
