@@ -2,12 +2,6 @@ import chess.engine
 import chess
 import chess.polyglot
 from settings import *
-import csv
-
-import chess.polyglot
-from settings import *
-import csv
-from chess import Move, Piece
 from ultility_function import move_ordering
 
 class chessAgent:
@@ -97,8 +91,6 @@ class chessAgent:
 
         current_value = - MATE_SCORE - 1
         moves_list = move_ordering(self.board)
-
-        # moves_list = move_ordering(self.board)
             
         if best_action is not None and best_action in moves_list:
             moves_list.remove(best_action)
@@ -145,32 +137,28 @@ class chessAgent:
             transposition_table[hash] = {"type": "exact", "value": value, "depth": depth, "best_action": None}
             return value
         
-import time
-import csv
-file_path = "board_fen_list.txt"
-board = chess.Board()
-agent = chessAgent(board)
-time_processed_list = []
-nodes_visited_list = []
-file = open("result_improved.csv", "w", newline='')
-writer = csv.writer(file)
-writer.writerow(["Board No.", "Time Processed", "Nodes Visited", "Best Move", "Best Score"])
-boardno = 1
-with open(file_path, 'r') as board_list:
-    for board_fen in board_list:
-        board_fen = board_fen.strip()
-        agent.board.set_fen(board_fen)
-        start = time.perf_counter()
-        move, score = agent.best_move_algorithm()
-        stop = time.perf_counter()
-        time_processed = stop - start
-        time_processed_list.append(time_processed)
-        nodes_visited_list.append(agent.perf)
-        writer.writerow([boardno, time_processed, agent.perf, move.uci(), score])
-        boardno += 1
-        
+    def move_ordering(self):
+        # Generate all legal moves
+        moves = list(self.board.legal_moves)
 
-print(sum(time_processed_list) / len(time_processed_list))
-print(sum(nodes_visited_list) / len(nodes_visited_list))
-agent.engine.close()
-file.close()
+        # Create a dictionary to store the priority of each move
+        move_priority = {}
+
+        # Assign a priority to each move
+        for move in moves:
+            priority = 0
+
+            # If the move is a capture, increase its priority
+            if self.board.is_capture(move):
+                priority += 100
+
+            # If the move gives a check, increase its priority
+            if self.board.gives_check(move):
+                priority += 50
+
+            move_priority[move] = priority
+
+        # Sort the moves based on their priority (descending order)
+        sorted_moves = sorted(moves, key=lambda move: move_priority[move], reverse=True)
+
+        return sorted_moves
